@@ -1,0 +1,79 @@
+/* src/styles/viewport.css */
+
+/* Canvas fills the viewport and has no outline */
+#c,
+canvas[id="c"] {
+  display: block;
+  height: 100%;
+  width: 100%;
+  outline: none;
+}
+
+/* Heads‑up display overlays */
+#hud {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+/* Equation overlay */
+#eq-overlay {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 160px);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(11, 11, 10, 0.72);
+  padding: 8px 20px;
+  backdrop-filter: blur(12px);
+}
+
+#eq-label {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-mute);
+}
+
+#eq-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-ink-dim);
+}
+
+/* View label (PERSPECTIVE) */
+#view-label {
+  position: absolute;
+  right: 80px;
+  top: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-mute);
+}
+
+/* Tip text at the bottom */
+#tip {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-mute);
+}

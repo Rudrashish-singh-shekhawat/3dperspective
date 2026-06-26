@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Standard CSS equivalent of the provided Tailwind theme configuration 
+*/
+
+:root {
+  /* Colors */
+  --color-ink: #e8e6df;
+  --color-ink-dim: #7a7870;
+  --color-ink-mute: #3d3c3a;
+  --color-surface: #0d0d0c;
+  --color-panel: rgba(14, 14, 13, 0.88);
+  --color-panel-solid: #0e0e0d;
+  --color-rule: #222220;
+  --color-blue: #4d9fff;
+  --color-green: #3ecf8e;
+  --color-red: #f47c5a;
+  --color-purple: #a78bfa;
+  --color-amber: #f5a623;
+  --color-cyan: #22d3ee;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+}
+
+/* Keyframes 
+*/
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes borderPulse {
+  0%, 100% {
+    border-color: rgba(77, 159, 255, 0.35);
+  }
+  50% {
+    border-color: rgba(77, 159, 255, 0.7);
+  }
+}
+
+@keyframes glowPulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(62, 207, 142, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(62, 207, 142, 0.55);
+  }
+}
+
+/* Animation Utility Classes 
+  (Equivalent to applying Tailwind's animate-* classes)
+*/
+
+.animate-gradientShift {
+  animation: gradientShift 6s ease infinite;
+}
+
+.animate-fadeSlideIn {
+  animation: fadeSlideIn 0.3s ease-out both;
+}
+
+.animate-borderPulse {
+  animation: borderPulse 3s ease-in-out infinite;
+}
+
+.animate-glowPulseGreen {
+  animation: glowPulseGreen 2.5s ease-in-out infinite;
+}
+
+/* Equation typewriter cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Arm card exit animation */
+@keyframes cardRemove {
+  0%   { opacity: 1; transform: scale(1); max-height: 200px; margin-bottom: 4px; }
+  40%  { opacity: 0.5; transform: scale(0.96); }
+  100% { opacity: 0; transform: scale(0.9) translateX(-20px); max-height: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; overflow: hidden; }
+}
+
+.arm-card-removing {
+  animation: cardRemove 280ms ease-in forwards;
+  pointer-events: none;
+}
+
+/* Header Cross Logo Animations */
+@keyframes crossPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.9; r: 3.5; }
+  50% { opacity: 1; r: 4.5; }
+}
+
+/* 3D Transform Utilities */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.rotate-x-45 {
+  transform: rotateX(45deg);
+}
+.rotate-y-45 {
+  transform: rotateY(45deg);
+}
+.-rotate-y-12 {
+  transform: rotateY(-12deg);
+}
+.rotate-x-12 {
+  transform: rotateX(12deg);
+}

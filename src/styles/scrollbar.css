@@ -1,0 +1,39 @@
+/* src/styles/scrollbar.css */
+
+/* Thin scrollbar styling for WebKit browsers */
+[scrollbar-width="thin"],
+.overflow-y-auto {
+  scrollbar-width: thin;
+}
+
+/* WebKit-specific custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    rgba(77, 159, 255, 0.3),
+    rgba(167, 139, 250, 0.3)
+  );
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    rgba(77, 159, 255, 0.5),
+    rgba(167, 139, 250, 0.5)
+  );
+}
+
+/* Firefox scrollbar colors (fallback) */
+* {
+  scrollbar-color: rgba(77, 159, 255, 0.2) transparent;
+}

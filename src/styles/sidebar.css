@@ -1,0 +1,51 @@
+/* src/styles/sidebar.css */
+
+/* Sidebar specific custom styles that go beyond Tailwind utilities */
+
+#sidebar {
+  /* Background and border already in Tailwind, but we can add a subtle inner shadow */
+  box-shadow: inset -4px 0 12px -4px rgba(0, 0, 0, 0.3);
+}
+
+#sidebar-header h1 span {
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* Speed slider row customisation */
+#speed-row input[type="range"] {
+  height: 4px;
+  background: linear-gradient(to right, var(--color-blue), var(--color-purple));
+  border-radius: 9999px;
+}
+
+/* Arm list empty state */
+#arm-list:empty::after {
+  content: 'NO ARMS — ADD ONE BELOW';
+  display: block;
+  padding: 24px 16px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-mute);
+}
+
+/* Arm card entry animation delay classes */
+.arm-card.delay-\[40ms\]  { animation-delay: 40ms; }
+.arm-card.delay-\[80ms\]  { animation-delay: 80ms; }
+.arm-card.delay-\[120ms\] { animation-delay: 120ms; }
+.arm-card.delay-\[160ms\] { animation-delay: 160ms; }
+.arm-card.delay-\[200ms\] { animation-delay: 200ms; }
+
+/* Stats bar hover effect */
+.stat:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Equation bar truncation */
+#eq-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

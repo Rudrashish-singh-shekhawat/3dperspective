@@ -1,0 +1,48 @@
+/* src/styles/animations.css */
+
+/* Keyframe definitions – also in globals.css, can be centralised here */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes fadeSlideIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(77,159,255,0.35); }
+  50% { border-color: rgba(77,159,255,0.7); }
+}
+
+@keyframes glowPulseGreen {
+  0%, 100% { box-shadow: 0 0 6px rgba(62,207,142,0.25); }
+  50% { box-shadow: 0 0 16px rgba(62,207,142,0.55); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Utility classes for animations */
+.animate-gradientShift {
+  animation: gradientShift 6s ease infinite;
+}
+
+.animate-fadeSlideIn {
+  animation: fadeSlideIn 0.3s ease-out both;
+}
+
+.animate-borderPulse {
+  animation: borderPulse 3s ease-in-out infinite;
+}
+
+.animate-glowPulseGreen {
+  animation: glowPulseGreen 2.5s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

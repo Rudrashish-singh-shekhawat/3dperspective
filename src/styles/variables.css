@@ -1,0 +1,32 @@
+/* src/styles/variables.css */
+
+:root {
+  /* Custom colour palette – mirrors the Tailwind config extensions */
+  --color-ink: #e8e6df;
+  --color-ink-dim: #7a7870;
+  --color-ink-mute: #3d3c3a;
+  --color-surface: #0d0d0c;
+  --color-panel: rgba(14, 14, 13, 0.88);
+  --color-panel-solid: #0e0e0d;
+  --color-rule: #222220;
+  --color-blue: #4d9fff;
+  --color-green: #3ecf8e;
+  --color-red: #f47c5a;
+  --color-purple: #a78bfa;
+  --color-amber: #f5a623;
+  --color-cyan: #22d3ee;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+
+  /* Border radius */
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+}

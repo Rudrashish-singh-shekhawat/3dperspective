@@ -1,0 +1,61 @@
+/* src/styles/responsive.css */
+
+/* Mobile portrait adjustments */
+@media (max-width: 640px) {
+  #sidebar {
+    width: 260px !important;
+    position: fixed;
+    left: 0;
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay behind sidebar when open */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 25;
+  }
+
+  #taskbar {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  #taskbar-center {
+    gap: 4px;
+  }
+
+  #bottom-panel {
+    border-radius: 12px 12px 0 0;
+  }
+
+  #hud #eq-overlay {
+    max-width: calc(100% - 40px);
+  }
+
+  #view-label {
+    right: 16px;
+  }
+}
+
+/* Tablet portrait adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  #sidebar {
+    width: 240px !important;
+  }
+
+  #taskbar-center {
+    gap: 6px;
+  }
+
+  .btn {
+    font-size: 9px;
+  }
+}
