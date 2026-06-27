@@ -133,9 +133,23 @@ export default function FourierDraw() {
             pathColor: 'rgba(255, 255, 255, 0.95)' // Always white for the first drawing
         };
 
+        let lastWidth = 0;
+        let lastHeight = 0;
+
         function resize() {
-            engineState.width = mainCanvas.width = trailCanvas.width = window.innerWidth;
-            engineState.height = mainCanvas.height = trailCanvas.height = window.innerHeight;
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+
+            const widthChanged = Math.abs(newWidth - lastWidth) > 30;
+            const heightChanged = Math.abs(newHeight - lastHeight) > 250;
+
+            if (lastWidth !== 0 && !widthChanged && !heightChanged) return;
+
+            lastWidth = newWidth;
+            lastHeight = newHeight;
+
+            engineState.width = mainCanvas.width = trailCanvas.width = newWidth;
+            engineState.height = mainCanvas.height = trailCanvas.height = newHeight;
             trailCtx.clearRect(0, 0, engineState.width, engineState.height);
             loadShape();
         }

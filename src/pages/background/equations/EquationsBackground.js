@@ -19,7 +19,8 @@ export default function EquationsBackground() {
     document.head.appendChild(link);
     
     let width, height;
-    let lastParentHeight = 0;
+    let lastWidth = 0;
+    let lastHeight = 0;
     let animationFrameId;
     let slots = [];
     const items = [];
@@ -350,7 +351,7 @@ export default function EquationsBackground() {
           this.itemWidth = ctx.measureText(this.equation).width;
           
           // Shrink font size if equation exceeds screen width on mobile
-          if (isMobile && this.itemWidth > currentW - 60) {
+          if (isMobile && this.itemWidth > 0 && this.itemWidth > currentW - 60) {
             this.fontSize = this.fontSize * ((currentW - 60) / this.itemWidth);
             ctx.font = `${this.fontSize}px ${FONT_FAMILY}`;
             this.itemWidth = ctx.measureText(this.equation).width;
@@ -545,8 +546,19 @@ export default function EquationsBackground() {
 
     const resize = () => {
       const parent = canvas.parentElement;
-      width = parent ? parent.offsetWidth : window.innerWidth;
-      height = parent ? parent.offsetHeight : window.innerHeight;
+      const newWidth = parent ? parent.offsetWidth : window.innerWidth;
+      const newHeight = parent ? parent.offsetHeight : window.innerHeight;
+
+      const widthChanged = Math.abs(newWidth - lastWidth) > 30;
+      const heightChanged = Math.abs(newHeight - lastHeight) > 250;
+
+      if (lastWidth !== 0 && !widthChanged && !heightChanged) return;
+
+      lastWidth = newWidth;
+      lastHeight = newHeight;
+      width = newWidth;
+      height = newHeight;
+
       const isMobile = width < 768;
       // Cap DPR to 1 on mobile to prevent GPU strain, maximum 2 on desktop
       const dpr = isMobile ? 1 : Math.min(2, window.devicePixelRatio || 1);
@@ -588,26 +600,17 @@ export default function EquationsBackground() {
     window.addEventListener('resize', resize);
     resize();
 
-    let isVisible = true;
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
-    }, { rootMargin: '200px' });
-    observer.observe(canvas);
-
     const render = () => {
-      if (!isVisible) {
-        // Sleep when offscreen to prevent scroll lag
-        setTimeout(() => {
-          animationFrameId = requestAnimationFrame(render);
-        }, 150);
-        return;
-      }
-
       globalTime++;
       const parent = canvas.parentElement;
-      if (parent && parent.offsetHeight !== lastParentHeight) {
-        lastParentHeight = parent.offsetHeight;
-        resize();
+      if (parent) {
+        const parentW = parent.offsetWidth;
+        const parentH = parent.offsetHeight;
+        const widthChanged = Math.abs(parentW - lastWidth) > 30;
+        const heightChanged = Math.abs(parentH - lastHeight) > 250;
+        if (widthChanged || heightChanged) {
+          resize();
+        }
       }
 
       ctx.clearRect(0, 0, width, height);
@@ -615,17 +618,27 @@ export default function EquationsBackground() {
       // Render smudges first, so new chalk is written on top of them!
       for (let i = smudges.length - 1; i >= 0; i--) {
         const s = smudges[i];
-        s.update();
-        if (s.life <= 0) {
+        try {
+          s.update();
+          if (s.life <= 0) {
+            smudges.splice(i, 1);
+          } else {
+            s.draw(ctx);
+          }
+        } catch (e) {
+          console.error("Error drawing smudge:", e);
           smudges.splice(i, 1);
-        } else {
-          s.draw(ctx);
         }
       }
 
       items.forEach(p => {
-        p.update();
-        p.draw();
+        try {
+          p.update();
+          p.draw();
+        } catch (e) {
+          console.error("Error drawing chalk item:", e);
+          p.reset();
+        }
       });
 
       animationFrameId = requestAnimationFrame(render);
@@ -634,7 +647,6 @@ export default function EquationsBackground() {
     render();
 
     return () => {
-      observer.disconnect();
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
       if (document.head.contains(link)) document.head.removeChild(link);
