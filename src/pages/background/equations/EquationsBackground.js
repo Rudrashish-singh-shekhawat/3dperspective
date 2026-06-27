@@ -359,13 +359,12 @@ export default function EquationsBackground() {
           
           this.itemHeight = this.fontSize * 1.5;
           this.charsWritten = 0;
-          // Halved speed to compensate for smooth 60fps frame rate
-          this.writeSpeed = Math.random() * 0.06 + 0.03;
+          this.writeSpeed = Math.random() * 0.12 + 0.06;
         } else if (this.type === 'graph') {
           const graphs = Object.keys(curves);
           this.graphType = graphs[Math.floor(Math.random() * graphs.length)];
           this.graphProgress = 0;
-          this.graphSpeed = Math.random() * 0.0015 + 0.001;
+          this.graphSpeed = Math.random() * 0.003 + 0.002;
           this.points = [];
 
           let baseWidth = Math.min(220, Math.max(140, Math.random() * 80 + 140));
@@ -389,7 +388,7 @@ export default function EquationsBackground() {
           ];
           this.diagramType = diagrams[Math.floor(Math.random() * diagrams.length)];
           this.diagramProgress = 0;
-          this.diagramSpeed = Math.random() * 0.0015 + 0.001;
+          this.diagramSpeed = Math.random() * 0.003 + 0.002;
 
           let baseWidth = Math.min(220, Math.max(140, Math.random() * 80 + 140));
           if (isMobile) baseWidth *= 0.65;

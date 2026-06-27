@@ -135,7 +135,7 @@ export default function Pendulum() {
     window.addEventListener('resize', handleResize);
 
     let drawProgress = 0;
-    const drawSpeed = 0.005; // Slower for complete diagram drawing
+    const drawSpeed = 0.0015; // Scaled down to compensate for 60fps frame rate
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
