@@ -8,6 +8,7 @@ import {
 import JosephFourierCanvas from '../components/JosephFourierCanvas';
 import Background from './background/Background';
 import EquationsBackground from './background/equations/EquationsBackground';
+import FourierDraw from './background/background epcircle/FourierDraw';
 
 
 /* ─── Scroll Reveal Component ─── */
@@ -328,6 +329,10 @@ export default function FourierArticle() {
   return (
     <div className="min-h-screen bg-[#0f1311] text-white font-sans selection:bg-white/20 overflow-x-hidden relative">
       <Background />
+
+      <div className="absolute top-0 left-0 w-full h-screen pointer-events-none z-0 overflow-hidden opacity-80 mix-blend-screen">
+        <FourierDraw />
+      </div>
 
       {/* ─── Floating Logo ─── */}
       <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none">
