@@ -547,17 +547,18 @@ export default function EquationsBackground() {
       const parent = canvas.parentElement;
       width = parent ? parent.offsetWidth : window.innerWidth;
       height = parent ? parent.offsetHeight : window.innerHeight;
-      const dpr = window.devicePixelRatio || 1;
+      const isMobile = width < 768;
+      // Cap DPR to 1 on mobile to prevent GPU strain, maximum 2 on desktop
+      const dpr = isMobile ? 1 : Math.min(2, window.devicePixelRatio || 1);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
 
       const area = width * height;
-      const isMobile = width < 768;
-      // Increase density on mobile because items are scaled down and screen is narrow
+      // Drastically reduce item count on mobile to maintain 60FPS while scrolling
       const targetCount = isMobile 
-        ? Math.max(12, Math.min(25, Math.floor(area / 30000))) 
-        : Math.max(5, Math.min(22, Math.floor(area / 180000)));
+        ? Math.max(2, Math.min(6, Math.floor(area / 80000))) 
+        : Math.max(5, Math.min(18, Math.floor(area / 180000)));
 
       while (items.length < targetCount) {
         const item = new ChalkItem();
@@ -587,7 +588,21 @@ export default function EquationsBackground() {
     window.addEventListener('resize', resize);
     resize();
 
+    let isVisible = true;
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+    }, { rootMargin: '200px' });
+    observer.observe(canvas);
+
     const render = () => {
+      if (!isVisible) {
+        // Sleep when offscreen to prevent scroll lag
+        setTimeout(() => {
+          animationFrameId = requestAnimationFrame(render);
+        }, 150);
+        return;
+      }
+
       globalTime++;
       const parent = canvas.parentElement;
       if (parent && parent.offsetHeight !== lastParentHeight) {
@@ -613,13 +628,13 @@ export default function EquationsBackground() {
         p.draw();
       });
 
-
       animationFrameId = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
       if (document.head.contains(link)) document.head.removeChild(link);
