@@ -335,7 +335,7 @@ export default function EquationsBackground() {
         
         const rand = Math.random();
         this.type = rand > 0.65 ? 'equation' : (rand > 0.3 ? 'graph' : 'diagram');
-        this.opacity = Math.random() * 0.08 + 0.12;
+        this.opacity = Math.random() * 0.15 + 0.30; // Increased opacity to make them whiter
 
         const currentW = width || window.innerWidth;
         const currentH = height || window.innerHeight;
