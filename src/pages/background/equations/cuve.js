@@ -1,13 +1,25 @@
 export const curves = {
   // --- ORIGINAL COMPILATION CURVES ---
+
+  // ==========================================
+  // name: sine
+  // ==========================================
   sine: {
     formulaLabel: 'ψ(x,t) = A sin(kx - ωt)',
     graph: (u, t, w, h) => -Math.sin(t) * h * 0.4
   },
+
+  // ==========================================
+  // name: decay
+  // ==========================================
   decay: {
     formulaLabel: 'x(t) = X₀ e^(-γt) cos(ωt)',
     graph: (u, t, w, h) => -Math.sin(t * 2.2) * h * 0.4 * Math.exp(-t * 0.25)
   },
+
+  // ==========================================
+  // name: fourier
+  // ==========================================
   fourier: {
     formulaLabel: 'f(x) = Σ [a_n cos(nx) + b_n sin(nx)]',
     graph: (u, t, w, h) => {
@@ -15,6 +27,10 @@ export const curves = {
       return -f * h * 0.35;
     }
   },
+
+  // ==========================================
+  // name: gaussian
+  // ==========================================
   gaussian: {
     formulaLabel: 'P(x) = 1/(σ√(2π)) e^(-x²/(2σ²))',
     graph: (u, t, w, h) => {
@@ -22,10 +38,18 @@ export const curves = {
       return -Math.exp(-nx * nx) * h * 0.45;
     }
   },
+
+  // ==========================================
+  // name: projectile
+  // ==========================================
   projectile: {
     formulaLabel: 'y = x tan(θ) - gx² / (2v₀² cos²θ)',
     graph: (u, t, w, h) => h * 0.3 - (h * 0.75) * 4 * u * (1 - u)
   },
+
+  // ==========================================
+  // name: planck
+  // ==========================================
   planck: {
     formulaLabel: 'B_λ(λ, T) = 2hc² / [λ⁵ (e^(hc/λkT) - 1)]',
     graph: (u, t, w, h) => {
@@ -34,6 +58,10 @@ export const curves = {
       return h * 0.35 - val * h * 0.55;
     }
   },
+
+  // ==========================================
+  // name: beats
+  // ==========================================
   beats: {
     formulaLabel: 'ψ(t) = 2A cos(Δω t/2) cos(ω_avg t)',
     graph: (u, t, w, h) => {
@@ -42,6 +70,10 @@ export const curves = {
       return -env * car * h * 0.42;
     }
   },
+
+  // ==========================================
+  // name: packet
+  // ==========================================
   packet: {
     formulaLabel: 'Ψ(x,0) = C e^(-x²/a²) e^(ik₀x)',
     graph: (u, t, w, h) => {
@@ -51,6 +83,10 @@ export const curves = {
       return -env * car * h * 0.42;
     }
   },
+
+  // ==========================================
+  // name: lissajous
+  // ==========================================
   lissajous: {
     formulaLabel: 'x = A sin(at), y = B sin(bt + δ)',
     graph: (u, t, w, h, cx, cy) => {
@@ -61,6 +97,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: relativity
+  // ==========================================
   relativity: {
     formulaLabel: 'γ = 1 / √(1 - v²/c²)',
     graph: (u, t, w, h) => {
@@ -69,6 +109,10 @@ export const curves = {
       return h * 0.35 - (gamma - 1) * h * 0.4;
     }
   },
+
+  // ==========================================
+  // name: circular
+  // ==========================================
   circular: {
     formulaLabel: 'x = R cos(ωt), y = R sin(ωt)',
     graph: (u, t, w, h, cx, cy) => {
@@ -79,6 +123,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: ellipse
+  // ==========================================
   ellipse: {
     formulaLabel: 'x²/a² + y²/b² = 1',
     graph: (u, t, w, h, cx, cy) => {
@@ -89,6 +137,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: hyperbola
+  // ==========================================
   hyperbola: {
     formulaLabel: 'x²/a² - y²/b² = 1',
     graph: (u, t, w, h, cx, cy) => {
@@ -99,6 +151,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: tanx
+  // ==========================================
   tanx: {
     formulaLabel: 'y = tan(x)',
     graph: (u, t, w, h) => {
@@ -106,6 +162,10 @@ export const curves = {
       return -Math.tan(lt) * h * 0.15;
     }
   },
+
+  // ==========================================
+  // name: thermo
+  // ==========================================
   thermo: {
     formulaLabel: 'Carnot: W = ∮ P dV',
     graph: (u, t, w, h, cx, cy) => {
@@ -116,6 +176,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: optics
+  // ==========================================
   optics: {
     formulaLabel: 'Diffraction: I = I₀ (sin(β)/β)²',
     graph: (u, t, w, h) => {
@@ -124,10 +188,18 @@ export const curves = {
       return h * 0.35 - val * h * 0.7;
     }
   },
+
+  // ==========================================
+  // name: kinematics
+  // ==========================================
   kinematics: {
     formulaLabel: 'v(t) = v₀ + a t',
     graph: (u, t, w, h) => h * 0.2 - u * h * 0.45
   },
+
+  // ==========================================
+  // name: eulers
+  // ==========================================
   eulers: {
     formulaLabel: 'e^(iφ) = cos(φ) + i sin(φ)',
     graph: (u, t, w, h) => {
@@ -135,10 +207,18 @@ export const curves = {
       return -Math.sin(lt) * h * 0.35 * (1 - u * 0.5);
     }
   },
+
+  // ==========================================
+  // name: straight
+  // ==========================================
   straight: {
     formulaLabel: 'y = m x + c',
     graph: (u, t, w, h) => h * 0.2 - (u - 0.5) * h * 0.6
   },
+
+  // ==========================================
+  // name: exponential
+  // ==========================================
   exponential: {
     formulaLabel: 'y = A e^(k x)',
     graph: (u, t, w, h) => {
@@ -146,6 +226,10 @@ export const curves = {
       return h * 0.35 - val * h * 0.18;
     }
   },
+
+  // ==========================================
+  // name: epicycle
+  // ==========================================
   epicycle: {
     formulaLabel: 'r(θ) = cos(3θ)',
     graph: (u, t, w, h, cx, cy) => {
@@ -157,6 +241,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: spiral
+  // ==========================================
   spiral: {
     formulaLabel: 'r = aθ',
     graph: (u, t, w, h, cx, cy) => {
@@ -172,6 +260,10 @@ export const curves = {
   // --- NEW USER MATHEMATICS TOPICS ---
 
   // Category: Coordinate Geometry
+
+  // ==========================================
+  // name: cartesianPlane
+  // ==========================================
   cartesianPlane: {
     formulaLabel: 'Cartesian Plane: (x, y) ∈ ℝ²',
     graph: (u, t, w, h, cx, cy) => {
@@ -183,12 +275,20 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: straightLine
+  // ==========================================
   straightLine: {
     formulaLabel: 'Straight Line: y = m x + c',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy + h * 0.25 - u * h * 0.5 };
     }
   },
+
+  // ==========================================
+  // name: parallelLines
+  // ==========================================
   parallelLines: {
     formulaLabel: 'Parallel Lines: L₁ || L₂ => m₁ = m₂',
     graph: (u, t, w, h, cx, cy) => {
@@ -202,6 +302,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: perpendicularLines
+  // ==========================================
   perpendicularLines: {
     formulaLabel: 'Perpendicular: L₁ ⊥ L₂ => m₁m₂ = -1',
     graph: (u, t, w, h, cx, cy) => {
@@ -215,6 +319,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: distanceFormula
+  // ==========================================
   distanceFormula: {
     formulaLabel: 'Distance: d = √((Δx)² + (Δy)²)',
     graph: (u, t, w, h, cx, cy) => {
@@ -233,6 +341,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: midpointFormula
+  // ==========================================
   midpointFormula: {
     formulaLabel: 'Midpoint M = ((x₁+x₂)/2, (y₁+y₂)/2)',
     graph: (u, t, w, h, cx, cy) => {
@@ -250,6 +362,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: circle
+  // ==========================================
   circle: {
     formulaLabel: 'Circle: (x-h)² + (y-k)² = r²',
     graph: (u, t, w, h, cx, cy) => {
@@ -259,6 +375,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: ellipseMath
+  // ==========================================
   ellipseMath: {
     formulaLabel: 'Ellipse: x²/a² + y²/b² = 1',
     graph: (u, t, w, h, cx, cy) => {
@@ -267,6 +387,10 @@ export const curves = {
       return { x: ox + w * 0.42 * Math.cos(angle), y: cy + h * 0.3 * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: hyperbolaMath
+  // ==========================================
   hyperbolaMath: {
     formulaLabel: 'Hyperbola: x²/a² - y²/b² = 1',
     graph: (u, t, w, h, cx, cy) => {
@@ -282,6 +406,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: parabolaMath
+  // ==========================================
   parabolaMath: {
     formulaLabel: 'Parabola: y² = 4ax',
     graph: (u, t, w, h, cx, cy) => {
@@ -289,6 +417,10 @@ export const curves = {
       return { x: cx + w / 2 + (lt * lt) * w * 0.45 - 15, y: cy + lt * h * 0.4 };
     }
   },
+
+  // ==========================================
+  // name: conicSections
+  // ==========================================
   conicSections: {
     formulaLabel: 'Conic Sections: Ellipse, Parabola, Hyperbola',
     graph: (u, t, w, h, cx, cy) => {
@@ -306,6 +438,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: polarCoordinates
+  // ==========================================
   polarCoordinates: {
     formulaLabel: 'Polar: (r, θ) where r = f(θ)',
     graph: (u, t, w, h, cx, cy) => {
@@ -317,6 +453,10 @@ export const curves = {
   },
 
   // Category: Calculus
+
+  // ==========================================
+  // name: limitApproaching
+  // ==========================================
   limitApproaching: {
     formulaLabel: 'Limit: lim(x→a) f(x) = L',
     graph: (u, t, w, h, cx, cy) => {
@@ -329,6 +469,10 @@ export const curves = {
       return { x: px, y: py };
     }
   },
+
+  // ==========================================
+  // name: derivativeTangent
+  // ==========================================
   derivativeTangent: {
     formulaLabel: "Derivative: f'(x) = dy/dx (Tangent)",
     graph: (u, t, w, h, cx, cy) => {
@@ -337,6 +481,10 @@ export const curves = {
       return { x: px, y: py };
     }
   },
+
+  // ==========================================
+  // name: differentiation
+  // ==========================================
   differentiation: {
     formulaLabel: 'Differentiation: d/dx(xⁿ) = n·xⁿ⁻¹',
     graph: (u, t, w, h, cx, cy) => {
@@ -345,6 +493,10 @@ export const curves = {
       return { x: px, y: py };
     }
   },
+
+  // ==========================================
+  // name: integrationArea
+  // ==========================================
   integrationArea: {
     formulaLabel: 'Integration: Area under curve ∫ f(x)dx',
     graph: (u, t, w, h, cx, cy) => {
@@ -358,6 +510,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: definiteIntegral
+  // ==========================================
   definiteIntegral: {
     formulaLabel: 'Definite Integral: Area from a to b',
     graph: (u, t, w, h, cx, cy) => {
@@ -365,6 +521,10 @@ export const curves = {
       return { x: px, y: cy - (Math.sin(u * Math.PI) * 0.3 + 0.2) * h };
     }
   },
+
+  // ==========================================
+  // name: indefiniteIntegral
+  // ==========================================
   indefiniteIntegral: {
     formulaLabel: 'Indefinite Integral: F(x) + C',
     graph: (u, t, w, h, cx, cy) => {
@@ -380,6 +540,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: differentialEquation
+  // ==========================================
   differentialEquation: {
     formulaLabel: 'Differential Eq: dy/dx = f(x, y)',
     graph: (u, t, w, h, cx, cy) => {
@@ -403,6 +567,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: partialDiffEq
+  // ==========================================
   partialDiffEq: {
     formulaLabel: 'Wave PDE: ∂²u/∂t² = c² ∂²u/∂x²',
     graph: (u, t, w, h, cx, cy) => {
@@ -417,6 +585,10 @@ export const curves = {
       return { x: waveX, y: waveY };
     }
   },
+
+  // ==========================================
+  // name: gradient
+  // ==========================================
   gradient: {
     formulaLabel: 'Gradient: ∇f = (∂f/∂x)i + (∂f/∂y)j',
     graph: (u, t, w, h, cx, cy) => {
@@ -430,6 +602,10 @@ export const curves = {
       return { x: ox + rX * Math.cos(angle), y: cy + rY * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: divergence
+  // ==========================================
   divergence: {
     formulaLabel: 'Divergence: ∇·F = div F',
     graph: (u, t, w, h, cx, cy) => {
@@ -442,6 +618,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: curl
+  // ==========================================
   curl: {
     formulaLabel: 'Curl: ∇ × F = curl F',
     graph: (u, t, w, h, cx, cy) => {
@@ -455,6 +635,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: vectorField
+  // ==========================================
   vectorField: {
     formulaLabel: 'Vector Field: F(x, y) = P i + Q j',
     graph: (u, t, w, h, cx, cy) => {
@@ -473,30 +657,50 @@ export const curves = {
   },
 
   // Category: Functions
+
+  // ==========================================
+  // name: linearFunction
+  // ==========================================
   linearFunction: {
     formulaLabel: 'Linear Function: f(x) = ax + b',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy + h * 0.2 - u * h * 0.4 };
     }
   },
+
+  // ==========================================
+  // name: quadraticFunction
+  // ==========================================
   quadraticFunction: {
     formulaLabel: 'Quadratic: f(x) = ax² + bx + c',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy + h * 0.35 - Math.pow((u - 0.5) * 2, 2) * h * 0.6 };
     }
   },
+
+  // ==========================================
+  // name: cubicFunction
+  // ==========================================
   cubicFunction: {
     formulaLabel: 'Cubic Function: f(x) = ax³ + bx² + cx + d',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy - Math.pow((u - 0.5) * 2.2, 3) * h * 0.1 };
     }
   },
+
+  // ==========================================
+  // name: polynomial
+  // ==========================================
   polynomial: {
     formulaLabel: 'Polynomial: P(x) = Σ a_k x^k',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy - Math.sin(u * Math.PI * 3) * h * 0.28 };
     }
   },
+
+  // ==========================================
+  // name: rationalFunction
+  // ==========================================
   rationalFunction: {
     formulaLabel: 'Rational: f(x) = P(x) / Q(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -512,6 +716,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: logarithmicFunction
+  // ==========================================
   logarithmicFunction: {
     formulaLabel: 'Logarithmic Function: f(x) = ln(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -519,24 +727,40 @@ export const curves = {
       return { x: cx + u * w, y: cy - Math.log(nx) * h * 0.25 };
     }
   },
+
+  // ==========================================
+  // name: exponentialFunction
+  // ==========================================
   exponentialFunction: {
     formulaLabel: 'Exponential Function: f(x) = e^x',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy + h * 0.32 - Math.exp((u - 0.5) * 3) * h * 0.15 };
     }
   },
+
+  // ==========================================
+  // name: sineCurve
+  // ==========================================
   sineCurve: {
     formulaLabel: 'Sine Curve: f(x) = sin(x)',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy - Math.sin(u * Math.PI * 4) * h * 0.38 };
     }
   },
+
+  // ==========================================
+  // name: cosineCurve
+  // ==========================================
   cosineCurve: {
     formulaLabel: 'Cosine Curve: f(x) = cos(x)',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy - Math.cos(u * Math.PI * 4) * h * 0.38 };
     }
   },
+
+  // ==========================================
+  // name: tangentCurve
+  // ==========================================
   tangentCurve: {
     formulaLabel: 'Tangent Curve: f(x) = tan(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -552,6 +776,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: cotangent
+  // ==========================================
   cotangent: {
     formulaLabel: 'Cotangent Curve: f(x) = cot(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -560,6 +788,10 @@ export const curves = {
       return { x: ox - w * 0.4 + u * w * 0.8, y: cy + (1 / Math.tan(lt)) * h * 0.08 };
     }
   },
+
+  // ==========================================
+  // name: secant
+  // ==========================================
   secant: {
     formulaLabel: 'Secant Curve: f(x) = sec(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -569,6 +801,10 @@ export const curves = {
       return { x: ox - w * 0.4 + u * w * 0.8, y: cy - val * h * 0.12 };
     }
   },
+
+  // ==========================================
+  // name: cosecant
+  // ==========================================
   cosecant: {
     formulaLabel: 'Cosecant Curve: f(x) = csc(x)',
     graph: (u, t, w, h, cx, cy) => {
@@ -578,12 +814,20 @@ export const curves = {
       return { x: ox - w * 0.4 + u * w * 0.8, y: cy - val * h * 0.12 };
     }
   },
+
+  // ==========================================
+  // name: absoluteValue
+  // ==========================================
   absoluteValue: {
     formulaLabel: 'Absolute Value: f(x) = |x|',
     graph: (u, t, w, h, cx, cy) => {
       return { x: cx + u * w, y: cy + h * 0.35 - Math.abs(u - 0.5) * h * 0.8 };
     }
   },
+
+  // ==========================================
+  // name: piecewiseFunction
+  // ==========================================
   piecewiseFunction: {
     formulaLabel: 'Piecewise Function: disjoint components',
     graph: (u, t, w, h, cx, cy) => {
@@ -599,6 +843,10 @@ export const curves = {
   },
 
   // Category: Trigonometry
+
+  // ==========================================
+  // name: unitCircle
+  // ==========================================
   unitCircle: {
     formulaLabel: 'Unit Circle: cos²(θ) + sin²(θ) = 1',
     graph: (u, t, w, h, cx, cy) => {
@@ -608,6 +856,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: trigRatios
+  // ==========================================
   trigRatios: {
     formulaLabel: 'Trig Ratios: sinθ = O/H, cosθ = A/H',
     graph: (u, t, w, h, cx, cy) => {
@@ -626,6 +878,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: eulerFormula
+  // ==========================================
   eulerFormula: {
     formulaLabel: 'Euler: e^(iθ) = cos θ + i sin θ',
     graph: (u, t, w, h, cx, cy) => {
@@ -640,6 +896,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: eulerIdentity
+  // ==========================================
   eulerIdentity: {
     formulaLabel: 'Euler Identity: e^(iπ) + 1 = 0',
     graph: (u, t, w, h, cx, cy) => {
@@ -653,6 +913,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: complexPlane
+  // ==========================================
   complexPlane: {
     formulaLabel: 'Complex Plane: Real & Imaginary axes',
     graph: (u, t, w, h, cx, cy) => {
@@ -664,6 +928,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: phasorDiagram
+  // ==========================================
   phasorDiagram: {
     formulaLabel: 'Phasor: V(t) = V₀ e^(i(ωt + φ))',
     graph: (u, t, w, h, cx, cy) => {
@@ -672,6 +940,10 @@ export const curves = {
       return { x: ox + u * h * 0.42 * Math.cos(angle), y: cy - u * h * 0.42 * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: fourierSeriesMath
+  // ==========================================
   fourierSeriesMath: {
     formulaLabel: 'Fourier: f(t) = a₀/2 + Σ a_n cos(nωt)',
     graph: (u, t, w, h, cx, cy) => {
@@ -686,6 +958,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: fourierTransform
+  // ==========================================
   fourierTransform: {
     formulaLabel: 'Fourier Transform: Spectrum Analysis',
     graph: (u, t, w, h, cx, cy) => {
@@ -703,6 +979,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: taylorSeries
+  // ==========================================
   taylorSeries: {
     formulaLabel: 'Taylor Series approximation expansion',
     graph: (u, t, w, h, cx, cy) => {
@@ -717,6 +997,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: maclaurinSeries
+  // ==========================================
   maclaurinSeries: {
     formulaLabel: 'Maclaurin expansion centered at 0',
     graph: (u, t, w, h, cx, cy) => {
@@ -733,6 +1017,10 @@ export const curves = {
   },
 
   // Category: Linear Algebra
+
+  // ==========================================
+  // name: matrix
+  // ==========================================
   matrix: {
     formulaLabel: 'Matrix grid array dimension indices',
     graph: (u, t, w, h, cx, cy) => {
@@ -751,6 +1039,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: matrixMultiplication
+  // ==========================================
   matrixMultiplication: {
     formulaLabel: 'Matrix Product: row × column dots',
     graph: (u, t, w, h, cx, cy) => {
@@ -764,6 +1056,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: eigenvectors
+  // ==========================================
   eigenvectors: {
     formulaLabel: 'Eigenvector A v = λ v',
     graph: (u, t, w, h, cx, cy) => {
@@ -777,6 +1073,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: eigenvalues
+  // ==========================================
   eigenvalues: {
     formulaLabel: 'Eigenvalue characteristic equation',
     graph: (u, t, w, h, cx, cy) => {
@@ -790,6 +1090,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: determinant
+  // ==========================================
   determinant: {
     formulaLabel: 'Determinant: det(A) (Area Scale)',
     graph: (u, t, w, h, cx, cy) => {
@@ -807,6 +1111,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: vectorProjection
+  // ==========================================
   vectorProjection: {
     formulaLabel: 'Projection: proj_b(a) projection vector',
     graph: (u, t, w, h, cx, cy) => {
@@ -825,6 +1133,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: dotProduct
+  // ==========================================
   dotProduct: {
     formulaLabel: 'Dot Product: a · b = |a||b| cosθ',
     graph: (u, t, w, h, cx, cy) => {
@@ -838,6 +1150,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: crossProduct
+  // ==========================================
   crossProduct: {
     formulaLabel: 'Cross Product: a × b = |a||b| sinθ n',
     graph: (u, t, w, h, cx, cy) => {
@@ -854,6 +1170,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: basisVectors
+  // ==========================================
   basisVectors: {
     formulaLabel: 'Basis: standard unit vectors i & j',
     graph: (u, t, w, h, cx, cy) => {
@@ -865,6 +1185,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: coordinateTransformation
+  // ==========================================
   coordinateTransformation: {
     formulaLabel: 'Transformation coordinate rotation matrix',
     graph: (u, t, w, h, cx, cy) => {
@@ -883,6 +1207,10 @@ export const curves = {
   },
 
   // Category: Complex Numbers
+
+  // ==========================================
+  // name: imaginaryAxis
+  // ==========================================
   imaginaryAxis: {
     formulaLabel: 'Imaginary: z = x + iy with i² = -1',
     graph: (u, t, w, h, cx, cy) => {
@@ -894,6 +1222,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: complexPlaneComplex
+  // ==========================================
   complexPlaneComplex: {
     formulaLabel: 'Complex Plane: ℂ coordinates',
     graph: (u, t, w, h, cx, cy) => {
@@ -907,6 +1239,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: polarForm
+  // ==========================================
   polarForm: {
     formulaLabel: 'Polar Form: z = r e^(iθ) complex vector',
     graph: (u, t, w, h, cx, cy) => {
@@ -921,6 +1257,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: eulerRepresentation
+  // ==========================================
   eulerRepresentation: {
     formulaLabel: 'Euler Representation: z = r e^(iθ)',
     graph: (u, t, w, h, cx, cy) => {
@@ -930,6 +1270,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy - r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: rootsOfUnity
+  // ==========================================
   rootsOfUnity: {
     formulaLabel: 'Roots of Unity: zⁿ = 1 discrete angles',
     graph: (u, t, w, h, cx, cy) => {
@@ -939,6 +1283,10 @@ export const curves = {
       return { x: ox + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     }
   },
+
+  // ==========================================
+  // name: argandDiagram
+  // ==========================================
   argandDiagram: {
     formulaLabel: 'Argand Diagram z = x + iy component projections',
     graph: (u, t, w, h, cx, cy) => {
@@ -960,6 +1308,10 @@ export const curves = {
   },
 
   // Category: Probability & Statistics
+
+  // ==========================================
+  // name: bellCurve
+  // ==========================================
   bellCurve: {
     formulaLabel: 'Bell Curve (Normal distribution shape)',
     graph: (u, t, w, h, cx, cy) => {
@@ -967,6 +1319,10 @@ export const curves = {
       return { x: cx + u * w, y: cy - Math.exp(-nx * nx / 2) * h * 0.45 };
     }
   },
+
+  // ==========================================
+  // name: gaussianDistribution
+  // ==========================================
   gaussianDistribution: {
     formulaLabel: 'Gaussian distribution probability density',
     graph: (u, t, w, h, cx, cy) => {
@@ -974,6 +1330,10 @@ export const curves = {
       return { x: cx + u * w, y: cy - Math.exp(-nx * nx / 3.5) * h * 0.48 };
     }
   },
+
+  // ==========================================
+  // name: histogram
+  // ==========================================
   histogram: {
     formulaLabel: 'Histogram: discrete bin frequencies',
     graph: (u, t, w, h, cx, cy) => {
@@ -994,6 +1354,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: scatterPlot
+  // ==========================================
   scatterPlot: {
     formulaLabel: 'Scatter Plot with Linear Regression line',
     graph: (u, t, w, h, cx, cy) => {
@@ -1015,6 +1379,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: boxPlot
+  // ==========================================
   boxPlot: {
     formulaLabel: 'Box Plot: min, Q1, median, Q3, max',
     graph: (u, t, w, h, cx, cy) => {
@@ -1039,6 +1407,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: probabilityTree
+  // ==========================================
   probabilityTree: {
     formulaLabel: 'Probability Tree branching pathways',
     graph: (u, t, w, h, cx, cy) => {
@@ -1052,6 +1424,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: binomialDistribution
+  // ==========================================
   binomialDistribution: {
     formulaLabel: 'Binomial distribution stem probabilities',
     graph: (u, t, w, h, cx, cy) => {
@@ -1065,6 +1441,10 @@ export const curves = {
       return { x: bx, y: by - su * bh };
     }
   },
+
+  // ==========================================
+  // name: normalDistribution
+  // ==========================================
   normalDistribution: {
     formulaLabel: 'Normal Distribution confidence bands',
     graph: (u, t, w, h, cx, cy) => {
@@ -1074,6 +1454,10 @@ export const curves = {
   },
 
   // Category: Topology & Geometry
+
+  // ==========================================
+  // name: triangle
+  // ==========================================
   triangle: {
     formulaLabel: 'Triangle: Area = ½ b h',
     graph: (u, t, w, h, cx, cy) => {
@@ -1090,6 +1474,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: pythagoreanTheorem
+  // ==========================================
   pythagoreanTheorem: {
     formulaLabel: 'Pythagorean: a² + b² = c²',
     graph: (u, t, w, h, cx, cy) => {
@@ -1109,6 +1497,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: square
+  // ==========================================
   square: {
     formulaLabel: 'Square: Area = s² (4 equal sides)',
     graph: (u, t, w, h, cx, cy) => {
@@ -1126,6 +1518,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: rectangle
+  // ==========================================
   rectangle: {
     formulaLabel: 'Rectangle: Area = w · h',
     graph: (u, t, w, h, cx, cy) => {
@@ -1143,6 +1539,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: pentagon
+  // ==========================================
   pentagon: {
     formulaLabel: 'Pentagon: Regular 5-gon geometry',
     graph: (u, t, w, h, cx, cy) => {
@@ -1159,6 +1559,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: hexagon
+  // ==========================================
   hexagon: {
     formulaLabel: 'Hexagon: Regular 6-gon shape',
     graph: (u, t, w, h, cx, cy) => {
@@ -1175,6 +1579,10 @@ export const curves = {
       };
     }
   },
+
+  // ==========================================
+  // name: cube
+  // ==========================================
   cube: {
     formulaLabel: 'Cube: Volume = s³ wireframe mesh',
     graph: (u, t, w, h, cx, cy) => {
@@ -1196,6 +1604,10 @@ export const curves = {
       return { x: p1.x + (p2.x - p1.x) * su, y: p1.y + (p2.y - p1.y) * su };
     }
   },
+
+  // ==========================================
+  // name: sphere
+  // ==========================================
   sphere: {
     formulaLabel: 'Sphere: Volume = 4/3 π r³ circles',
     graph: (u, t, w, h, cx, cy) => {
@@ -1213,6 +1625,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: cylinder
+  // ==========================================
   cylinder: {
     formulaLabel: 'Cylinder: Volume = π r² h representation',
     graph: (u, t, w, h, cx, cy) => {
@@ -1234,6 +1650,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: cone
+  // ==========================================
   cone: {
     formulaLabel: 'Cone: Volume = ⅓ π r² h wireframe',
     graph: (u, t, w, h, cx, cy) => {
@@ -1252,6 +1672,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: torus
+  // ==========================================
   torus: {
     formulaLabel: 'Torus: V = 2 π² R r² donuts',
     graph: (u, t, w, h, cx, cy) => {
@@ -1267,6 +1691,10 @@ export const curves = {
       }
     }
   },
+
+  // ==========================================
+  // name: mobiusStrip
+  // ==========================================
   mobiusStrip: {
     formulaLabel: 'Möbius Strip: non-orientable surface',
     graph: (u, t, w, h, cx, cy) => {
@@ -1279,6 +1707,10 @@ export const curves = {
 };
 
 export const mathDiagrams = {
+
+  // ==========================================
+  // name: pythagorean
+  // ==========================================
   pythagorean: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2 - 12;
@@ -1336,6 +1768,10 @@ export const mathDiagrams = {
       drawChalkLine(ctx, [{ x: sx_c, y: sy_c }, { x: sx_c + 2, y: sy_c + 2 }], opacity * 0.8, 2.5, WHITE);
     }
   },
+
+  // ==========================================
+  // name: polar
+  // ==========================================
   polar: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -1379,6 +1815,10 @@ export const mathDiagrams = {
       drawChalkText(ctx, '(r, θ)', px + 4, py - 6, opacity, 11, CYAN);
     }
   },
+
+  // ==========================================
+  // name: tangent
+  // ==========================================
   tangent: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -1426,6 +1866,10 @@ export const mathDiagrams = {
       drawChalkText(ctx, "dy/dx = f'(x)", px - 12, py - lh - 8, opacity, 10, PURPLE);
     }
   },
+
+  // ==========================================
+  // name: integral
+  // ==========================================
   integral: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, WHITE, CYAN, PURPLE } = helpers;
     const lx = x + 20;
@@ -1485,6 +1929,10 @@ export const mathDiagrams = {
       drawChalkText(ctx, '∫ f(x)dx', ox + intA + 8, oy - lh - 14, opacity, 11, CYAN);
     }
   },
+
+  // ==========================================
+  // name: fourierSeries
+  // ==========================================
   fourierSeries: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth * 0.32;
@@ -1549,6 +1997,10 @@ export const mathDiagrams = {
       drawChalkLine(ctx, tracePts, opacity, 1.5, PURPLE);
     }
   },
+
+  // ==========================================
+  // name: argand
+  // ==========================================
   argand: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;

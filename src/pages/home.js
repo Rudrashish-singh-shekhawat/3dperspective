@@ -106,14 +106,14 @@ export default function Home() {
       <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none">
 
         <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center">
-          <div
-            className="flex items-center gap-2 font-mono text-sm font-bold tracking-wider cursor-pointer text-white/80 hover:text-white transition-colors pointer-events-auto"
+          <button
+            className="flex items-center gap-2 font-mono text-sm font-bold tracking-wider text-white/80 hover:text-white transition-colors pointer-events-auto p-2 -ml-2"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
           >
             <Box size={18} />
-
             <span>3D PERSPECTIVE</span>
-          </div>
+          </button>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Play, Waves, Activity, CircleDashed, Image as ImageIcon,
   ChevronRight, Music, Radio, Sigma, Brain, Zap, Volume2,
-  Smartphone, Wifi, Sparkles
+  Smartphone, Wifi, Sparkles, Box
 } from 'lucide-react';
 import JosephFourierCanvas from '../components/JosephFourierCanvas';
 import Background from './background/Background';
@@ -304,6 +304,20 @@ export default function FourierArticle() {
   return (
     <div className="min-h-screen bg-[#0f1311] text-white font-sans selection:bg-white/20 overflow-x-hidden relative">
       <Background />
+
+      {/* ─── Floating Logo ─── */}
+      <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center">
+          <button
+            className="flex items-center gap-2 font-mono text-sm font-bold tracking-wider text-white/80 hover:text-white transition-colors pointer-events-auto p-2 -ml-2"
+            onClick={() => navigate('/')}
+            aria-label="Back to home"
+          >
+            <Box size={18} />
+            <span>3D PERSPECTIVE</span>
+          </button>
+        </div>
+      </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12 md:py-20 pb-20 md:pb-32 flex flex-col gap-16 md:gap-28">
 

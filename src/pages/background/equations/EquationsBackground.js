@@ -555,9 +555,9 @@ export default function EquationsBackground() {
       ctx.scale(dpr, dpr);
 
       const area = width * height;
-      // Drastically reduce item count on mobile to maintain 60FPS while scrolling
+      // Ensure enough items on mobile so it doesn't look empty, but kept low enough to prevent lag
       const targetCount = isMobile 
-        ? Math.max(2, Math.min(6, Math.floor(area / 80000))) 
+        ? Math.max(6, Math.min(12, Math.floor(area / 50000))) 
         : Math.max(5, Math.min(18, Math.floor(area / 180000)));
 
       while (items.length < targetCount) {
