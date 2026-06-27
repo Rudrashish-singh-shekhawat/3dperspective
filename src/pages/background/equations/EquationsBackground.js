@@ -35,6 +35,8 @@ export default function EquationsBackground() {
       }
     };
 
+    const smudgeCache = new Map();
+
     class ChalkSmudge {
       constructor(item) {
         this.type = item.type;
@@ -48,20 +50,62 @@ export default function EquationsBackground() {
         this.itemWidth = item.itemWidth;
         this.itemHeight = item.itemHeight;
 
-        if (this.type === 'equation') {
-          this.equation = item.equation;
-          this.fontSize = item.fontSize;
-        } else if (this.type === 'graph') {
-          this.points = [...item.points];
-          this.formulaLabel = item.formulaLabel;
-          this.graphWidth = item.graphWidth;
-          this.graphHeight = item.graphHeight;
-          this.graphType = item.graphType;
-        } else if (this.type === 'diagram') {
-          this.diagramType = item.diagramType;
-          this.formulaLabel = item.formulaLabel;
-          this.graphWidth = item.graphWidth;
-          this.graphHeight = item.graphHeight;
+        // Cache dimensions
+        const smearW = this.type === 'equation' ? this.itemWidth + 60 : item.graphWidth + 80;
+        const smearH = this.type === 'equation' ? this.itemHeight * 2.2 : item.graphHeight * 1.4;
+        this.smearW = smearW;
+        this.smearH = smearH;
+
+        // Render entirely to an offscreen canvas once (cache per type/equation)
+        const cacheKey = item.equation || item.diagramType || item.formulaLabel || 'unknown';
+        this.margin = 20;
+
+        if (smudgeCache.has(cacheKey)) {
+          this.cachedCanvas = smudgeCache.get(cacheKey);
+        } else {
+          const margin = this.margin;
+          const cw = smearW + margin * 2;
+          const ch = smearH + margin * 2;
+          
+          const oc = document.createElement('canvas');
+          oc.width = cw;
+          oc.height = ch;
+          const octx = oc.getContext('2d');
+          
+          const grad = octx.createLinearGradient(margin, ch/2, margin + smearW, ch/2);
+          grad.addColorStop(0, 'rgba(240, 240, 245, 0)');
+          grad.addColorStop(0.2, `rgba(240, 240, 245, 0.12)`);
+          grad.addColorStop(0.8, `rgba(240, 240, 245, 0.12)`);
+          grad.addColorStop(1, 'rgba(240, 240, 245, 0)');
+          
+          octx.fillStyle = grad;
+          octx.fillRect(margin, margin, smearW, smearH);
+
+          const ox = margin + 20;
+          const oy = ch / 2;
+
+          if (this.type === 'equation') {
+            drawChalkText(octx, item.equation, ox, oy, 0.45, item.fontSize);
+            drawChalkText(octx, item.equation, ox + 0.8, oy - 0.6, 0.25, item.fontSize);
+            drawChalkText(octx, item.equation, ox - 0.8, oy + 0.6, 0.25, item.fontSize);
+          } else if (this.type === 'graph') {
+            drawAxes(octx, ox, oy, item.graphWidth, item.graphHeight, 1.0, 0.3);
+            drawChalkText(octx, item.formulaLabel, ox + 12, oy - item.graphHeight / 2 - 16, 0.3, 13);
+            if (item.cachedPoints && item.cachedPoints.length > 1) {
+              const localPts = item.cachedPoints.map(p => ({ x: p.x - item.x + ox, y: p.y - item.y + oy }));
+              drawChalkLine(octx, localPts, 0.45, 1.6);
+              const shifted1 = localPts.map(p => ({ x: p.x + 0.8, y: p.y - 0.5 }));
+              drawChalkLine(octx, shifted1, 0.25, 2.0);
+              const shifted2 = localPts.map(p => ({ x: p.x - 0.8, y: p.y + 0.5 }));
+              drawChalkLine(octx, shifted2, 0.25, 2.0);
+            }
+          } else if (this.type === 'diagram') {
+            drawDiagram(octx, item.diagramType, ox, oy, item.graphWidth, item.graphHeight, item.formulaLabel, 1.0, 0.4);
+            drawDiagram(octx, item.diagramType, ox + 0.8, oy - 0.5, item.graphWidth, item.graphHeight, item.formulaLabel, 1.0, 0.2);
+          }
+          
+          this.cachedCanvas = oc;
+          smudgeCache.set(cacheKey, oc);
         }
       }
 
@@ -75,44 +119,8 @@ export default function EquationsBackground() {
         if (currentOpacity <= 0.005) return;
 
         ctx.save();
-
-        // Draw a soft duster smudge band using a hardware-accelerated linear gradient
-        const smearW = this.type === 'equation'
-          ? this.itemWidth + 60
-          : this.graphWidth + 80;
-        const smearH = this.type === 'equation'
-          ? this.itemHeight * 2.2
-          : this.graphHeight * 1.4;
-
-        const grad = ctx.createLinearGradient(this.x - 20, this.y, this.x + smearW, this.y);
-        grad.addColorStop(0, 'rgba(240, 240, 245, 0)');
-        grad.addColorStop(0.2, `rgba(240, 240, 245, ${currentOpacity * 0.12})`);
-        grad.addColorStop(0.8, `rgba(240, 240, 245, ${currentOpacity * 0.12})`);
-        grad.addColorStop(1, 'rgba(240, 240, 245, 0)');
-
-        ctx.fillStyle = grad;
-        ctx.fillRect(this.x - 20, this.y - smearH / 2, smearW, smearH);
-
-        // Ghost outline of the erased equation, graph, or diagram
-        if (this.type === 'equation') {
-          drawChalkText(ctx, this.equation, this.x, this.y, currentOpacity * 0.45, this.fontSize);
-          drawChalkText(ctx, this.equation, this.x + 0.8, this.y - 0.6, currentOpacity * 0.25, this.fontSize);
-          drawChalkText(ctx, this.equation, this.x - 0.8, this.y + 0.6, currentOpacity * 0.25, this.fontSize);
-        } else if (this.type === 'graph') {
-          drawAxes(ctx, this.x, this.y, this.graphWidth, this.graphHeight, 1.0, currentOpacity * 0.3);
-          drawChalkText(ctx, this.formulaLabel, this.x + 12, this.y - this.graphHeight / 2 - 16, currentOpacity * 0.3, 13);
-          if (this.points && this.points.length > 1) {
-            drawChalkLine(ctx, this.points, currentOpacity * 0.45, 1.6);
-            const shifted1 = this.points.map(p => ({ x: p.x + 0.8, y: p.y - 0.5 }));
-            drawChalkLine(ctx, shifted1, currentOpacity * 0.25, 2.0);
-            const shifted2 = this.points.map(p => ({ x: p.x - 0.8, y: p.y + 0.5 }));
-            drawChalkLine(ctx, shifted2, currentOpacity * 0.25, 2.0);
-          }
-        } else if (this.type === 'diagram') {
-          drawDiagram(ctx, this.diagramType, this.x, this.y, this.graphWidth, this.graphHeight, this.formulaLabel, 1.0, currentOpacity * 0.4);
-          drawDiagram(ctx, this.diagramType, this.x + 0.8, this.y - 0.5, this.graphWidth, this.graphHeight, this.formulaLabel, 1.0, currentOpacity * 0.2);
-        }
-
+        ctx.globalAlpha = currentOpacity;
+        ctx.drawImage(this.cachedCanvas, this.x - 20 - this.margin, this.y - this.smearH / 2 - this.margin);
         ctx.restore();
       }
     }
@@ -143,14 +151,14 @@ export default function EquationsBackground() {
     };
 
     // Draw chalk line for graphs — solid white/colored, continuous
-    const drawChalkLine = (ctx, points, opacity, thickness = 1.5, colorPrefix = WHITE) => {
-      if (points.length < 2 || opacity <= 0.01) return;
+    const drawChalkLine = (ctx, points, opacity, thickness = 1.5, colorPrefix = WHITE, limit = points.length) => {
+      if (limit < 2 || opacity <= 0.01) return;
       ctx.save();
 
       // Main path — solid continuous
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
+      for (let i = 1; i < limit; i++) {
         ctx.lineTo(points[i].x, points[i].y);
       }
       ctx.strokeStyle = `${colorPrefix}${opacity * 0.8})`;
@@ -162,7 +170,7 @@ export default function EquationsBackground() {
       // Subtle second pass with slight offset for chalk width
       ctx.beginPath();
       ctx.moveTo(points[0].x + 0.3, points[0].y + 0.3);
-      for (let i = 1; i < points.length; i++) {
+      for (let i = 1; i < limit; i++) {
         ctx.lineTo(points[i].x + 0.3, points[i].y + 0.3);
       }
       ctx.strokeStyle = `${colorPrefix}${opacity * 0.25})`;
@@ -360,13 +368,27 @@ export default function EquationsBackground() {
           
           this.itemHeight = this.fontSize * 1.5;
           this.charsWritten = 0;
-          this.writeSpeed = Math.random() * 0.08 + 0.04; // Slower equation writing
+          this.writeSpeed = Math.random() * 0.08 + 0.04;
+
+          // Cache text render to avoid fillText calls per frame
+          const cacheKey = 'text_' + this.equation + '_' + this.fontSize.toFixed(1);
+          if (smudgeCache.has(cacheKey)) {
+            this.cachedTextCanvas = smudgeCache.get(cacheKey);
+          } else {
+            const tc = document.createElement('canvas');
+            tc.width = this.itemWidth + 20;
+            tc.height = this.fontSize * 3;
+            const tctx = tc.getContext('2d');
+            drawChalkText(tctx, this.equation, 10, tc.height / 2, 1.0, this.fontSize);
+            this.cachedTextCanvas = tc;
+            smudgeCache.set(cacheKey, tc);
+          }
         } else if (this.type === 'graph') {
           const graphs = Object.keys(curves);
           this.graphType = graphs[Math.floor(Math.random() * graphs.length)];
           this.graphProgress = 0;
           this.graphSpeed = Math.random() * 0.003 + 0.002;
-          this.points = [];
+          this.cachedPoints = []; // Precalculated coordinates
 
           let baseWidth = Math.min(220, Math.max(140, Math.random() * 80 + 140));
           if (isMobile) baseWidth *= 0.65;
@@ -456,6 +478,29 @@ export default function EquationsBackground() {
 
         this.x = attemptX;
         this.y = attemptY;
+
+        // 3. Precalculate graph curve points to prevent array allocation and math recalculations inside the render loop
+        if (this.type === 'graph') {
+          this.cachedPoints = [];
+          const numPts = Math.floor(this.graphWidth);
+          for (let i = 0; i <= numPts; i++) {
+            const u = i / this.graphWidth;
+            let px = this.x + i, py = this.y;
+            const t = u * Math.PI * 4;
+
+            const curveFn = curves[this.graphType]?.graph;
+            if (curveFn) {
+              const res = curveFn(u, t, this.graphWidth, this.graphHeight, this.x, this.y);
+              if (typeof res === 'object') {
+                px = res.x;
+                py = res.y;
+              } else {
+                py = this.y + res;
+              }
+            }
+            this.cachedPoints.push({ x: px, y: py });
+          }
+        }
       }
 
       update() {
@@ -499,10 +544,15 @@ export default function EquationsBackground() {
           const writingWidth = getWritingWidth(fullText, Math.min(this.charsWritten, fullText.length), this.fontSize);
 
           ctx.save();
+          ctx.globalAlpha = opacity;
           ctx.beginPath();
           ctx.rect(this.x - 5, this.y - this.fontSize * 1.2, writingWidth + 5, this.fontSize * 2.4);
           ctx.clip();
-          drawChalkText(ctx, fullText, this.x, this.y, opacity, this.fontSize);
+          if (this.cachedTextCanvas) {
+            ctx.drawImage(this.cachedTextCanvas, this.x - 10, this.y - this.cachedTextCanvas.height / 2);
+          } else {
+            drawChalkText(ctx, fullText, this.x, this.y, 1.0, this.fontSize);
+          }
           ctx.restore();
 
         } else if (this.type === 'graph') {
@@ -510,32 +560,13 @@ export default function EquationsBackground() {
 
           if (this.graphProgress > 0.3) {
             const curveProg = Math.min(1, (this.graphProgress - 0.3) / 0.7);
-            this.points = [];
 
             const labelChars = Math.floor(this.formulaLabel.length * curveProg);
             drawChalkText(ctx, this.formulaLabel.substring(0, labelChars), this.x + 12, this.y - this.graphHeight / 2 - 16, opacity * 0.75, 13);
 
-            const numPts = Math.floor(this.graphWidth * curveProg);
-            for (let i = 0; i <= numPts; i++) {
-              const u = i / this.graphWidth;
-              let px = this.x + i, py = this.y;
-              const t = u * Math.PI * 4;
-
-              const curveFn = curves[this.graphType]?.graph;
-              if (curveFn) {
-                const res = curveFn(u, t, this.graphWidth, this.graphHeight, this.x, this.y);
-                if (typeof res === 'object') {
-                  px = res.x;
-                  py = res.y;
-                } else {
-                  py = this.y + res;
-                }
-              }
-              this.points.push({ x: px, y: py });
-            }
-
-            if (this.points.length > 1) {
-              drawChalkLine(ctx, this.points, opacity, 1.8);
+            const drawPtsCount = Math.floor(this.cachedPoints.length * curveProg);
+            if (drawPtsCount > 1) {
+              drawChalkLine(ctx, this.cachedPoints, opacity, 1.8, WHITE, drawPtsCount);
             }
           }
         } else if (this.type === 'diagram') {
@@ -597,21 +628,28 @@ export default function EquationsBackground() {
       });
     };
 
-    window.addEventListener('resize', resize);
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width: newWidth, height: newHeight } = entry.contentRect;
+        const widthChanged = Math.abs(newWidth - lastWidth) > 30;
+        const heightChanged = Math.abs(newHeight - lastHeight) > 250;
+        
+        if (lastWidth === 0 || widthChanged || heightChanged) {
+          resize();
+        }
+      }
+    });
+
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
+    } else {
+      window.addEventListener('resize', resize);
+    }
+
     resize();
 
     const render = () => {
       globalTime++;
-      const parent = canvas.parentElement;
-      if (parent) {
-        const parentW = parent.offsetWidth;
-        const parentH = parent.offsetHeight;
-        const widthChanged = Math.abs(parentW - lastWidth) > 30;
-        const heightChanged = Math.abs(parentH - lastHeight) > 250;
-        if (widthChanged || heightChanged) {
-          resize();
-        }
-      }
 
       ctx.clearRect(0, 0, width, height);
 
@@ -648,6 +686,7 @@ export default function EquationsBackground() {
 
     return () => {
       window.removeEventListener('resize', resize);
+      resizeObserver.disconnect();
       cancelAnimationFrame(animationFrameId);
       if (document.head.contains(link)) document.head.removeChild(link);
     };

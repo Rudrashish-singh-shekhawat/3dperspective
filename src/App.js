@@ -9,6 +9,9 @@ import Home from './pages/home';
 import FourierSeries from './pages/fourierserise';
 import FourierApp from './pages/FourierApp';
 
+// Background Math Pre-Computation
+import './utils/fourierMath';
+
 const SmartTitle = () => {
   const location = useLocation();
 
@@ -27,12 +30,40 @@ const SmartTitle = () => {
   return null;
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Disable automatic browser scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    
+    // Scroll immediately
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+
+    // Retry after a short delay to override late rendering shifts
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => {
   return (
     <ErrorBoundary>
       <ThemeProvider>
         <AppProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <SmartTitle />
             <Routes>
               <Route path="/" element={<Home />} />
