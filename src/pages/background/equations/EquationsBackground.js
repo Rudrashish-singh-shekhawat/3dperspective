@@ -359,7 +359,7 @@ export default function EquationsBackground() {
           
           this.itemHeight = this.fontSize * 1.5;
           this.charsWritten = 0;
-          this.writeSpeed = Math.random() * 0.12 + 0.06;
+          this.writeSpeed = Math.random() * 0.08 + 0.04; // Slower equation writing
         } else if (this.type === 'graph') {
           const graphs = Object.keys(curves);
           this.graphType = graphs[Math.floor(Math.random() * graphs.length)];

@@ -20,15 +20,15 @@ export function Taskbar() {
   return (
     <div
       id="taskbar"
-      className="pointer-events-auto relative flex h-8 flex-shrink-0 items-center justify-between border-t border-white/5 bg-panel/80 backdrop-blur-md px-2 sm:px-4 z-30 transition-colors overflow-x-auto overflow-y-hidden whitespace-nowrap [&::-webkit-scrollbar]:hidden"
+      className="pointer-events-auto relative flex h-14 md:h-8 flex-shrink-0 items-center justify-between border-t border-white/5 bg-panel/80 backdrop-blur-md px-2 sm:px-4 z-30 transition-colors overflow-x-auto overflow-y-hidden whitespace-nowrap [&::-webkit-scrollbar]:hidden"
     >
       {/* Resizer (shown only when panel is open) */}
       <Resizer />
 
       {/* Left side: on mobile, show graph and svg export buttons here */}
       <div className="flex items-center gap-0.5 sm:gap-1 md:hidden">
-        <ChartButton />
         <ExportButton />
+        <ChartButton />
       </div>
 
       {/* Center: playback and clear controls */}

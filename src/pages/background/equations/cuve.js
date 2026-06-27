@@ -144,7 +144,7 @@ export const curves = {
   hyperbola: {
     formulaLabel: 'x²/a² - y²/b² = 1',
     graph: (u, t, w, h, cx, cy) => {
-      const lt = (u - 0.5) * 3;
+      const lt = Math.max(-3, Math.min(3, (u - 0.5) * 3));
       return {
         x: cx + w / 2 + Math.cosh(lt) * w * 0.15,
         y: cy + Math.sinh(lt) * h * 0.3
@@ -159,7 +159,8 @@ export const curves = {
     formulaLabel: 'y = tan(x)',
     graph: (u, t, w, h) => {
       const lt = (u - 0.5) * Math.PI * 0.9;
-      return -Math.tan(lt) * h * 0.15;
+      const val = Math.tan(lt);
+      return -Math.max(-5, Math.min(5, val)) * h * 0.15;
     }
   },
 
@@ -558,7 +559,8 @@ export const curves = {
       const cellY = cy - h / 2 + (r + 0.5) * (h / rows);
       const dx = cellX - ox;
       const dy = cellY - cy;
-      const slope = -dx / (dy || 1);
+      const eps = 1e-6;
+        const slope = -dx / (Math.abs(dy) < eps ? eps : dy);
       const angle = Math.atan(slope) + Math.sin(t * 0.1) * 0.3;
       const len = 10;
       return {
@@ -810,8 +812,9 @@ export const curves = {
     graph: (u, t, w, h, cx, cy) => {
       const ox = cx + w / 2;
       const lt = (u - 0.5) * Math.PI * 0.8 + Math.PI / 2;
-      const val = 1 / Math.cos(lt);
-      return { x: ox - w * 0.4 + u * w * 0.8, y: cy - val * h * 0.12 };
+      const val = 1 / Math.sin(lt);
+      const clamped = Math.max(-5, Math.min(5, val));
+      return { x: ox - w * 0.4 + u * w * 0.8, y: cy - clamped * h * 0.12 };
     }
   },
 
@@ -967,14 +970,20 @@ export const curves = {
     graph: (u, t, w, h, cx, cy) => {
       const ox = cx + w / 2;
       if (u < 0.5) {
+        // Time domain signal
         const su = u / 0.5;
         return { x: cx + su * w * 0.45, y: cy - 16 - (Math.sin(su * Math.PI * 4) + Math.sin(su * Math.PI * 8)) * h * 0.1 };
       } else {
+        // Frequency domain (Sinc-like peaks for the fourier transform)
         const su = (u - 0.5) / 0.5;
         let py = cy + 20;
-        if (Math.abs(su - 0.3) < 0.02 || Math.abs(su - 0.69) < 0.02) {
-          py -= h * 0.32;
-        }
+        
+        // Define peaks at specific frequencies corresponding to the time domain signal
+        const peak1 = Math.max(0, 1 - Math.abs(su - 0.3) * 20);
+        const peak2 = Math.max(0, 1 - Math.abs(su - 0.7) * 20);
+        
+        py -= (peak1 * h * 0.3 + peak2 * h * 0.2);
+        
         return { x: ox + 10 + su * w * 0.4, y: py };
       }
     }
@@ -993,7 +1002,8 @@ export const curves = {
         const su = (u - 0.5) / 0.5;
         const nx = (su - 0.5) * 2;
         const approx = 1 + nx + (nx * nx) / 2 + (nx * nx * nx) / 6;
-        return { x: cx + su * w, y: cy - approx * h * 0.15 };
+        const clampedApprox = Math.max(-10, Math.min(10, approx));
+        return { x: cx + su * w, y: cy - clampedApprox * h * 0.15 };
       }
     }
   },
@@ -1011,7 +1021,8 @@ export const curves = {
         const su = (u - 0.5) / 0.5;
         const nx = (su - 0.5) * Math.PI * 2;
         const approx = 1 - (nx * nx) / 2 + (nx * nx * nx * nx) / 24;
-        return { x: cx + su * w, y: cy - approx * h * 0.28 };
+        const clampedApprox = Math.max(-10, Math.min(10, approx));
+        return { x: cx + su * w, y: cy - clampedApprox * h * 0.28 };
       }
     }
   },
@@ -1340,7 +1351,7 @@ export const curves = {
       const bars = 6;
       const barW = w * 0.85 / bars;
       const heights = [0.22, 0.45, 0.78, 0.62, 0.38, 0.18];
-      const idx = Math.floor(u * bars);
+      const idx = Math.min(bars - 1, Math.floor(u * bars));
       const su = (u * bars) - idx;
       const bx = cx + w * 0.08 + idx * barW;
       const by = cy + h * 0.35;
@@ -1433,7 +1444,7 @@ export const curves = {
     graph: (u, t, w, h, cx, cy) => {
       const count = 7;
       const heights = [0.06, 0.2, 0.48, 0.72, 0.5, 0.24, 0.09];
-      const idx = Math.floor(u * count);
+      const idx = Math.min(count - 1, Math.floor(u * count));
       const su = (u * count) - idx;
       const bx = cx + w * 0.1 + idx * (w * 0.8 / count);
       const by = cy + h * 0.35;

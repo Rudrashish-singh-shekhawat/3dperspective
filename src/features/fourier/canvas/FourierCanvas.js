@@ -250,8 +250,9 @@ function HUD() {
       <div id="view-label"
         className="absolute right-4 md:right-6 bottom-[18px] font-mono text-[10px] uppercase tracking-[0.12em] text-ink-mute">PERSPECTIVE</div>
       <div id="tip"
-        className={`absolute bottom-[18px] left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] tracking-[0.06em] text-ink-mute transition-opacity duration-1000 ${hasInteracted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        Drag — rotate &nbsp;·&nbsp; Shift+drag — roll &nbsp;·&nbsp; Scroll — zoom &nbsp;·&nbsp; Right-drag — pan
+        className={`absolute bottom-[18px] left-4 md:left-1/2 md:-translate-x-1/2 whitespace-nowrap font-mono text-[9px] md:text-[10px] tracking-[0.06em] text-ink-mute transition-opacity duration-1000 ${hasInteracted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <span className="md:hidden">1F: Rotate &nbsp;·&nbsp; 2F: Pan/Zoom</span>
+        <span className="hidden md:inline">Drag — rotate &nbsp;·&nbsp; Shift+drag — roll &nbsp;·&nbsp; Scroll — zoom &nbsp;·&nbsp; Right-drag — pan</span>
       </div>
     </div>
   );

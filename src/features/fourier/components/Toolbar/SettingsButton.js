@@ -8,7 +8,7 @@ import React from 'react';
 export function SettingsButton() {
   return (
     <button
-      className={`icon-btn flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-transparent text-ink-mute transition-all duration-200 hover:-translate-y-px hover:border-white/10 hover:bg-white/[0.05] hover:text-ink active:border-blue/20 active:bg-blue/10 active:text-blue active:shadow-[0_0_10px_rgba(77,159,255,0.1)]`}
+      className={`icon-btn flex h-10 w-10 md:h-6 md:w-6 flex-shrink-0 items-center justify-center rounded-md border border-transparent text-ink-mute transition-all duration-200 hover:-translate-y-px hover:border-white/10 hover:bg-white/[0.05] hover:text-ink active:border-blue/20 active:bg-blue/10 active:text-blue active:shadow-[0_0_10px_rgba(77,159,255,0.1)]`}
       id="btn-settings"
       title="Settings"
       onClick={() => {}}

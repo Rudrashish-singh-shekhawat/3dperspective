@@ -46,8 +46,14 @@ function SineWaveCanvas({ color = '#3b82f6', frequency = 1, amplitude = 1, class
     const ctx = canvas.getContext('2d');
     let id;
     const draw = (t) => {
-      const w = canvas.width = canvas.offsetWidth * 2;
-      const h = canvas.height = canvas.offsetHeight * 2;
+      const targetW = canvas.offsetWidth * 2;
+      const targetH = canvas.offsetHeight * 2;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
       ctx.strokeStyle = color;
       ctx.lineWidth = 2.5;
@@ -81,8 +87,14 @@ function EpicycleCanvas({ className = '' }) {
       { r: 8, speed: 7, color: 'rgba(251,191,36,0.5)' },
     ];
     const draw = (t) => {
-      const w = canvas.width = canvas.offsetWidth * 2;
-      const h = canvas.height = canvas.offsetHeight * 2;
+      const targetW = canvas.offsetWidth * 2;
+      const targetH = canvas.offsetHeight * 2;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
       let cx = w * 0.35, cy = h / 2;
       const time = t * 0.001;
@@ -152,8 +164,14 @@ function FourierEpicycleCanvas({ numArms = 300, className = '' }) {
       arms.push({ r, speed, color });
     }
     const draw = (t) => {
-      const w = canvas.width = canvas.offsetWidth * 2;
-      const h = canvas.height = canvas.offsetHeight * 2;
+      const targetW = canvas.offsetWidth * 2;
+      const targetH = canvas.offsetHeight * 2;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
       let cx = w * 0.35, cy = h / 2;
       const time = t * 0.001;
@@ -215,8 +233,14 @@ function SquareWaveCanvas({ terms = 7, className = '' }) {
     const ctx = canvas.getContext('2d');
     let id;
     const draw = (t) => {
-      const w = canvas.width = canvas.offsetWidth * 2;
-      const h = canvas.height = canvas.offsetHeight * 2;
+      const targetW = canvas.offsetWidth * 2;
+      const targetH = canvas.offsetHeight * 2;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       ctx.lineWidth = 2;

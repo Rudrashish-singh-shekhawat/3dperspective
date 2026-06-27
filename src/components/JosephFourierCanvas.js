@@ -37,8 +37,14 @@ export default function JosephFourierCanvas({ numArms = 300, className = '' }) {
     }
 
     const draw = (t) => {
-      const w = canvas.width = canvas.offsetWidth * 2;
-      const h = canvas.height = canvas.offsetHeight * 2;
+      const targetW = canvas.offsetWidth * 2;
+      const targetH = canvas.offsetHeight * 2;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
       let cx = w * 0.35;

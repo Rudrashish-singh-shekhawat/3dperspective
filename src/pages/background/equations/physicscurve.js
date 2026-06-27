@@ -1,41 +1,65 @@
+// ==========================================
+// Constants & Helpers
+// ==========================================
+const LABEL_SIZE = 11;
+const PARTICLE_RADIUS = 3;
+const DEFAULT_OPACITY = 0.5;
+
+const getCenter = (x, y, w) => ({ cx: x + w / 2, cy: y + 10 });
+
+const drawCircle = (ctx, cx, cy, r, opacity, color, fill = false) => {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  if (fill) {
+    ctx.fillStyle = color || `rgba(255, 255, 255, ${opacity})`;
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = color || `rgba(255, 255, 255, ${opacity})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  ctx.restore();
+};
+
+const drawParticle = (ctx, cx, cy, opacity, color) => {
+  drawCircle(ctx, cx, cy, PARTICLE_RADIUS, opacity, color, true);
+};
+
 export const physicsDiagrams = {
   // ==========================================
   // Circular Diagram
   // ==========================================
   circular: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
+    const { cx, cy } = getCenter(x, y, graphWidth);
     const R = graphHeight * 0.35;
-    const theta = globalTime * 0.025;
+    const omega = 0.025; // angular velocity
+    const vMag = 30; // visual velocity magnitude
+    const theta = globalTime * omega;
     const px = cx + R * Math.cos(theta);
     const py = cy + R * Math.sin(theta);
 
     if (prog > 0.1) {
-      const circPts = [];
-      const maxAngle = Math.PI * 2 * Math.min(1, (prog - 0.1) / 0.5);
-      for (let a = 0; a <= maxAngle + 0.05; a += 0.12) {
-        circPts.push({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) });
-      }
-      if (circPts.length > 1) {
-        drawChalkLine(ctx, circPts, opacity * 0.45, 1.2);
-      }
+      drawCircle(ctx, cx, cy, R, opacity * 0.45 * Math.min(1, (prog - 0.1) / 0.5));
     }
     if (prog > 0.5) {
       drawChalkLine(ctx, [{ x: cx, y: cy }, { x: px, y: py }], opacity * 0.5, 1.2, CYAN);
-      drawChalkText(ctx, 'R', cx + (px - cx) * 0.5 - 12, cy + (py - cy) * 0.5 - 6, opacity * 0.5, 11, CYAN);
+      drawChalkText(ctx, 'R', cx + (px - cx) * 0.5 - 12, cy + (py - cy) * 0.5 - 6, opacity * 0.5, LABEL_SIZE, CYAN);
     }
     if (prog > 0.7) {
+      // Tangential velocity: v = ωR
       const vAngle = theta + Math.PI / 2;
-      const vx = px + Math.cos(vAngle) * 30;
-      const vy = py + Math.sin(vAngle) * 30;
+      const vx = px + Math.cos(vAngle) * vMag;
+      const vy = py + Math.sin(vAngle) * vMag;
       drawChalkArrow(ctx, px, py, vx, vy, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'v', vx + 5, vy - 5, opacity, 12, PURPLE);
+      drawChalkText(ctx, 'v = ωR', vx + 5, vy - 5, opacity, LABEL_SIZE, PURPLE);
 
+      // Centripetal acceleration: a_c = v²/R
       const ax = px - Math.cos(theta) * 26;
       const ay = py - Math.sin(theta) * 26;
       drawChalkArrow(ctx, px, py, ax, ay, opacity * 0.8, 1.5, CYAN);
-      drawChalkText(ctx, 'a_c', ax - 6, ay - 10, opacity * 0.8, 11, CYAN);
+      drawChalkText(ctx, 'a_c = v²/R', ax - 25, ay - 10, opacity * 0.8, LABEL_SIZE, CYAN);
     }
   },
   // ==========================================
@@ -43,10 +67,15 @@ export const physicsDiagrams = {
   // ==========================================
   pendulum: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
+    const { cx } = getCenter(x, y, graphWidth);
     const cy = y - graphHeight * 0.4;
-    const cx = x + graphWidth / 2;
-    const theta = 0.35 * Math.sin(globalTime * 0.04);
+    
+    // Physics: T = 2π√(L/g) -> omega = √(g/L)
     const L = graphHeight * 0.65;
+    const g = 0.5; // virtual gravity
+    const omega = Math.sqrt(g / L);
+    const theta = 0.35 * Math.sin(globalTime * omega * 8.0); // Scaled for visible animation
+    
     const bx = cx + L * Math.sin(theta);
     const by = cy + L * Math.cos(theta);
 
@@ -60,58 +89,72 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, [{ x: cx, y: cy }, { x: bx, y: by }], opacity * 0.6, 1.2, CYAN);
     }
     if (prog > 0.5) {
-      const bobPts = [];
-      for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.4) {
-        bobPts.push({ x: bx + 7 * Math.cos(a), y: by + 7 * Math.sin(a) });
-      }
-      drawChalkLine(ctx, bobPts, opacity, 1.5, PURPLE);
-
-      const dashedPts = [];
-      for (let dy = cy; dy < cy + L; dy += 8) {
-        dashedPts.push({ x: cx, y: dy });
-        dashedPts.push({ x: cx, y: Math.min(cy + L, dy + 4) });
-      }
-      for (let k = 0; k < dashedPts.length; k += 2) {
-        drawChalkLine(ctx, [dashedPts[k], dashedPts[k + 1]], opacity * 0.35, 1);
-      }
+      drawCircle(ctx, bx, by, 7, opacity, PURPLE);
+      
+      // Equilibrium dashed line
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx, cy + L);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.35})`;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.restore();
     }
     if (prog > 0.7) {
+      // Tension force
       drawChalkArrow(ctx, bx, by, bx - Math.sin(theta) * 22, by - Math.cos(theta) * 22, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'T', bx - Math.sin(theta) * 22 - 10, by - Math.cos(theta) * 22 - 5, opacity, 11, CYAN);
+      drawChalkText(ctx, 'T', bx - Math.sin(theta) * 22 - 10, by - Math.cos(theta) * 22 - 5, opacity, LABEL_SIZE, CYAN);
 
+      // Gravity force
       drawChalkArrow(ctx, bx, by, bx, by + 25, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'mg', bx + 4, by + 22, opacity, 11, PURPLE);
+      drawChalkText(ctx, 'mg', bx + 4, by + 22, opacity, LABEL_SIZE, PURPLE);
     }
   },
   // ==========================================
-  // Optics Diagram
+  // Optics Diagram (Snell's Law)
   // ==========================================
   optics: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const iy = y + 10;
-    const cx = x + graphWidth / 2;
+    const { cx } = getCenter(x, y, graphWidth);
+
+    // Physics: Snell's Law n1*sin(θ1) = n2*sin(θ2)
+    const n1 = 1.0; // Air
+    const n2 = 1.5; // Glass
+    const theta1 = Math.PI / 4; // Incident angle
+    const theta2 = Math.asin((n1 / n2) * Math.sin(theta1)); // Refracted angle
+
+    const rayLength = graphWidth * 0.45;
+    const rx1 = cx - Math.sin(theta1) * rayLength;
+    const ry1 = iy - Math.cos(theta1) * rayLength;
+    const rx2 = cx + Math.sin(theta2) * rayLength;
+    const ry2 = iy + Math.cos(theta2) * rayLength;
 
     if (prog > 0.1) {
       drawChalkLine(ctx, [{ x: x, y: iy }, { x: x + graphWidth, y: iy }], opacity * 0.5, 1.5);
-      for (let ny = iy - graphHeight / 2; ny < iy + graphHeight / 2; ny += 10) {
-        drawChalkLine(ctx, [{ x: cx, y: ny }, { x: cx, y: ny + 5 }], opacity * 0.35, 1);
-      }
-      drawChalkText(ctx, 'n₁', x + 8, iy - 14, opacity * 0.5, 12);
-      drawChalkText(ctx, 'n₂', x + 8, iy + 14, opacity * 0.5, 12);
-    }
+      
+      // Normal line
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, iy - graphHeight / 2);
+      ctx.lineTo(cx, iy + graphHeight / 2);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.35})`;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.restore();
 
-    const rx1 = cx - graphWidth * 0.42;
-    const ry1 = iy - graphHeight * 0.38;
-    const rx2 = cx + graphWidth * 0.28;
-    const ry2 = iy + graphHeight * 0.42;
+      drawChalkText(ctx, `n₁=${n1.toFixed(1)}`, x + 8, iy - 14, opacity * 0.5, LABEL_SIZE);
+      drawChalkText(ctx, `n₂=${n2.toFixed(1)}`, x + 8, iy + 14, opacity * 0.5, LABEL_SIZE);
+    }
 
     if (prog > 0.4) {
       drawChalkArrow(ctx, rx1, ry1, cx, iy, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'θ₁', cx - 18, iy - 16, opacity * 0.8, 11, CYAN);
+      drawChalkText(ctx, 'θ₁', cx - 18, iy - 16, opacity * 0.8, LABEL_SIZE, CYAN);
     }
     if (prog > 0.7) {
       drawChalkArrow(ctx, cx, iy, rx2, ry2, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'θ₂', cx + 10, iy + 16, opacity * 0.8, 11, PURPLE);
+      drawChalkText(ctx, 'θ₂', cx + 10, iy + 16, opacity * 0.8, LABEL_SIZE, PURPLE);
     }
 
     if (prog > 0.7) {
@@ -130,7 +173,7 @@ export const physicsDiagrams = {
     }
   },
   // ==========================================
-  // Prism Diagram
+  // Prism Diagram (Wavelength Dispersion)
   // ==========================================
   prism: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
@@ -142,14 +185,28 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, [{ x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }, { x: x1, y: y1 }], opacity * 0.5, 1.5);
     }
 
+    // Physics: Dispersion angles derived from n(λ)
+    // Refractive index differs by wavelength
+    const nAir = 1.0;
+    const nCyan = 1.52; // Shorter wavelength bends more
+    const nPurple = 1.54; // Shortest wavelength bends most
+    const angleOfIncidence = Math.PI / 4;
+    
+    // Abstract geometric representation of Snell's Law through prism
     const hit1X = x + graphWidth * 0.32;
     const hit1Y = y - 2;
     const hit2X = x + graphWidth * 0.68;
     const hit2Y = y + 6;
-    const outX_cyan = x + graphWidth - 5;
-    const outY_cyan = y + graphHeight * 0.35;
-    const outX_purple = x + graphWidth - 5;
-    const outY_purple = y + graphHeight * 0.41;
+    
+    // Output angles are mathematically separated based on refractive index
+    const outAngleCyan = Math.asin(nCyan * Math.sin(Math.PI/6)) - Math.PI/6;
+    const outAnglePurple = Math.asin(nPurple * Math.sin(Math.PI/6)) - Math.PI/6;
+    
+    const rayLength = 35;
+    const outX_cyan = hit2X + Math.cos(outAngleCyan) * rayLength;
+    const outY_cyan = hit2Y + Math.sin(outAngleCyan) * rayLength;
+    const outX_purple = hit2X + Math.cos(outAnglePurple) * rayLength;
+    const outY_purple = hit2Y + Math.sin(outAnglePurple) * rayLength;
 
     if (prog > 0.4) {
       drawChalkArrow(ctx, x, y + 12, hit1X, hit1Y, opacity, 1.5, WHITE);
@@ -158,7 +215,7 @@ export const physicsDiagrams = {
     if (prog > 0.7) {
       drawChalkArrow(ctx, hit2X, hit2Y, outX_cyan, outY_cyan, opacity, 1.5, CYAN);
       drawChalkArrow(ctx, hit2X, hit2Y, outX_purple, outY_purple, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'δ', hit2X + 12, hit1Y - 8, opacity * 0.75, 11, PURPLE);
+      drawChalkText(ctx, 'δ(λ)', hit2X + 12, hit1Y - 8, opacity * 0.75, LABEL_SIZE, PURPLE);
     }
 
     if (prog > 0.7) {
@@ -185,7 +242,7 @@ export const physicsDiagrams = {
     }
   },
   // ==========================================
-  // Cell Diagram
+  // Cell Diagram (Oxidation / Reduction)
   // ==========================================
   cell: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
@@ -208,46 +265,46 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, [{ x: bx + 4, y: by + bh * 0.35 }, { x: bx + bw - 4, y: by + bh * 0.35 }], opacity * 0.3, 1);
     }
     if (prog > 0.4) {
+      // Anode (-) Oxidation
       drawChalkLine(ctx, [
-        { x: ex1 - 6, y: by + 8 },
-        { x: ex1 + 6, y: by + 8 },
-        { x: ex1 + 6, y: by + bh * 0.85 },
-        { x: ex1 - 6, y: by + bh * 0.85 },
-        { x: ex1 - 6, y: by + 8 }
-      ], opacity * 0.65, 1.2, PURPLE);
-      drawChalkText(ctx, '+', ex1 - 3, by - 4, opacity * 0.8, 10, PURPLE);
-
-      drawChalkLine(ctx, [
-        { x: ex2 - 6, y: by + 8 },
-        { x: ex2 + 6, y: by + 8 },
-        { x: ex2 + 6, y: by + bh * 0.85 },
-        { x: ex2 - 6, y: by + bh * 0.85 },
-        { x: ex2 - 6, y: by + 8 }
+        { x: ex1 - 6, y: by + 8 }, { x: ex1 + 6, y: by + 8 },
+        { x: ex1 + 6, y: by + bh * 0.85 }, { x: ex1 - 6, y: by + bh * 0.85 }, { x: ex1 - 6, y: by + 8 }
       ], opacity * 0.65, 1.2, CYAN);
-      drawChalkText(ctx, '-', ex2 - 3, by - 4, opacity * 0.8, 10, CYAN);
+      drawChalkText(ctx, '-', ex1 - 3, by - 4, opacity * 0.8, LABEL_SIZE, CYAN);
+
+      // Cathode (+) Reduction
+      drawChalkLine(ctx, [
+        { x: ex2 - 6, y: by + 8 }, { x: ex2 + 6, y: by + 8 },
+        { x: ex2 + 6, y: by + bh * 0.85 }, { x: ex2 - 6, y: by + bh * 0.85 }, { x: ex2 - 6, y: by + 8 }
+      ], opacity * 0.65, 1.2, PURPLE);
+      drawChalkText(ctx, '+', ex2 - 3, by - 4, opacity * 0.8, LABEL_SIZE, PURPLE);
     }
     if (prog > 0.7) {
+      // Wire
       drawChalkLine(ctx, [{ x: ex1, y: by + 8 }, { x: ex1, y: batY }, { x: midX - 6, y: batY }], opacity * 0.45, 1);
       drawChalkLine(ctx, [{ x: ex2, y: by + 8 }, { x: ex2, y: batY }, { x: midX + 6, y: batY }], opacity * 0.45, 1);
 
-      drawChalkLine(ctx, [{ x: midX - 6, y: batY - 6 }, { x: midX - 6, y: batY + 6 }], opacity * 0.8, 1.5, PURPLE);
-      drawChalkLine(ctx, [{ x: midX - 2, y: batY - 3 }, { x: midX - 2, y: batY + 3 }], opacity * 0.8, 1);
-      drawChalkLine(ctx, [{ x: midX + 2, y: batY - 6 }, { x: midX + 2, y: batY + 6 }], opacity * 0.8, 1.5, CYAN);
-      drawChalkLine(ctx, [{ x: midX + 6, y: batY - 3 }, { x: midX + 6, y: batY + 3 }], opacity * 0.8, 1);
-
-      drawChalkText(ctx, 'M⁺', midX - 18, by + bh * 0.55, opacity, 11, PURPLE);
-      drawChalkArrow(ctx, midX - 6, by + bh * 0.55 + 4, ex2 - 8, by + bh * 0.55 + 4, opacity * 0.7, 1, CYAN);
+      // Load (Bulb or Voltmeter)
+      drawCircle(ctx, midX, batY, 6, opacity, CYAN);
+      drawChalkText(ctx, 'V', midX - 4, batY + 4, opacity, LABEL_SIZE - 2, CYAN);
     }
 
     if (prog > 0.7) {
-      const ionT = (globalTime * 0.008) % 1.0;
-      const ionX = ex1 + 8 + ionT * (ex2 - ex1 - 16);
+      // Physics: Electrons flow through wire from Anode(-) to Cathode(+)
+      // Ions flow through electrolyte to balance charge
+      const t = (globalTime * 0.01) % 1.0;
+      
+      // Electron flow (wire)
+      const eX = ex1 + (ex2 - ex1) * t;
+      const eY = batY;
+      drawParticle(ctx, eX, eY, opacity, CYAN);
+      drawChalkText(ctx, 'e⁻', eX - 4, eY - 6, opacity * 0.8, LABEL_SIZE - 2, CYAN);
+      
+      // Ion flow (electrolyte)
+      const ionX = ex2 - (ex2 - ex1) * t;
       const ionY = by + bh * 0.65;
-      drawChalkText(ctx, '•', ionX - 2, ionY, opacity * 0.8, 12, PURPLE);
-
-      const bubbleY = by + bh * 0.8 - ((globalTime * 0.5) % 30);
-      drawChalkText(ctx, 'o', ex1 + 2, bubbleY, opacity * 0.5, 7, PURPLE);
-      drawChalkText(ctx, 'o', ex2 - 6, bubbleY - 8, opacity * 0.5, 7, CYAN);
+      drawParticle(ctx, ionX, ionY, opacity, PURPLE);
+      drawChalkText(ctx, '+', ionX - 3, ionY - 5, opacity * 0.8, LABEL_SIZE, PURPLE);
     }
   },
   // ==========================================
@@ -288,12 +345,20 @@ export const physicsDiagrams = {
         { x: cx + cw * 0.25, y: cy + ch * 0.65, dx: 0.3, dy: -0.2 },
         { x: cx + cw * 0.45, y: cy + ch * 0.8, dx: -0.4, dy: -0.3 },
         { x: cx + cw * 0.72, y: cy + ch * 0.6, dx: 0.5, dy: 0.1 },
-        { x: cx + cw * 0.5, y: cy + ch * 0.58, dx: -0.2, dy: 0.4 }
+        { x: cx + cw * 0.5, y: cy + ch * 0.58, dx: -0.2, dy: 0.4 },
+        { x: cx + cw * 0.3, y: cy + ch * 0.85, dx: -0.3, dy: 0.2 },
+        { x: cx + cw * 0.65, y: cy + ch * 0.82, dx: 0.1, dy: -0.4 }
       ];
       gas.forEach((g, idx) => {
         const jx = g.x + Math.sin(globalTime * 0.1 + idx) * 4;
         const jy = g.y + Math.cos(globalTime * 0.08 + idx) * 4;
-        const finalY = Math.max(pistY + 6, Math.min(cy + ch - 4, jy));
+        
+        // Physics: scale Y proportionally to available volume to show density increase
+        const baseMinY = cy + ch * 0.4;
+        const baseMaxY = cy + ch;
+        const normalizedY = (jy - baseMinY) / (baseMaxY - baseMinY);
+        const finalY = pistY + normalizedY * (baseMaxY - pistY);
+        
         drawChalkLine(ctx, [{ x: jx, y: finalY }, { x: jx + 0.5, y: finalY }], opacity, 2.5, PURPLE);
       });
 
@@ -302,98 +367,71 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'dQ', cx + cw / 2 - 10, qY + 11, opacity, 11, CYAN);
     }
   },
-  // ==========================================
+
+     // ==========================================
   // Fbd Diagram
   // ==========================================
   fbd: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
-    const bx = x + 20;
-    const by = y + graphHeight * 0.35;
+    const { cx, cy } = getCenter(x, y, graphWidth);
     const slopeW = graphWidth - 40;
     const slopeH = graphHeight * 0.55;
-
-    // Draw inclined plane
-    if (prog > 0.1) {
-      drawChalkLine(ctx, [
-        { x: bx, y: by + slopeH },
-        { x: bx + slopeW, y: by + slopeH },
-        { x: bx, y: by },
-        { x: bx, y: by + slopeH }
-      ], opacity * 0.5, 1.2);
-      
-      // Draw theta angle arc
-      ctx.beginPath();
-      ctx.arc(bx + slopeW, by + slopeH, 15, Math.PI, Math.PI + Math.atan2(slopeH, slopeW));
-      ctx.strokeStyle = `rgba(255,255,255,${opacity * 0.4})`;
-      ctx.stroke();
-      drawChalkText(ctx, 'θ', bx + slopeW - 25, by + slopeH - 8, opacity * 0.6, 10, WHITE);
-    }
-
+    
+    // Physics: Normal force N = mg cos(theta)
     const angle = Math.atan2(slopeH, slopeW);
-    const tVal = (globalTime * 0.005) % 1.0;
-    const slideDistance = tVal * (slopeW * 0.4);
+    const boxW = 28;
+    const boxH = 22;
+    const wLength = 40; // mg vector length
     
-    // Bottom center of the block on the slope
-    const midX = bx + slopeW * 0.25 + Math.cos(angle) * slideDistance;
-    const midY = by + slopeH * 0.25 + Math.sin(angle) * slideDistance;
+    // Accurate vector lengths based on physics equations
+    const nLength = wLength * Math.cos(angle); 
+    const fParallel = wLength * Math.sin(angle);
+    const friction = fParallel * 0.6; // kinetic friction
     
-    const bw = 24, bh = 16;
-
+    // Centers for box
+    const bcy = cy + 10;
+    
+    if (prog > 0.1) {
+      drawChalkLine(ctx, [{ x: cx - slopeW / 2, y: bcy + slopeH / 2 }, { x: cx + slopeW / 2, y: bcy - slopeH / 2 }], opacity * 0.5, 1.5);
+      drawChalkLine(ctx, [{ x: cx - slopeW / 2, y: bcy + slopeH / 2 }, { x: cx + slopeW / 2, y: bcy + slopeH / 2 }], opacity * 0.3, 1);
+    }
+    
     if (prog > 0.3) {
       ctx.save();
-      ctx.translate(midX, midY);
-      ctx.rotate(angle);
-      // Draw block
+      ctx.translate(cx, bcy);
+      ctx.rotate(-angle);
       drawChalkLine(ctx, [
-        { x: -bw / 2, y: -bh },
-        { x: bw / 2, y: -bh },
-        { x: bw / 2, y: 0 },
-        { x: -bw / 2, y: 0 },
-        { x: -bw / 2, y: -bh }
+        { x: -boxW / 2, y: -boxH }, { x: boxW / 2, y: -boxH },
+        { x: boxW / 2, y: 0 }, { x: -boxW / 2, y: 0 }, { x: -boxW / 2, y: -boxH }
       ], opacity * 0.8, 1.5, WHITE);
       ctx.restore();
     }
-
-    // Calculate exact center of mass for forces
-    const cx = midX - Math.sin(angle) * (bh / 2);
-    const cy = midY - Math.cos(angle) * (bh / 2);
-
+    
     if (prog > 0.5) {
-      // Weight (mg) pointing straight down
-      const wLength = 32;
-      drawChalkArrow(ctx, cx, cy, cx, cy + wLength, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'mg', cx + 4, cy + wLength + 6, opacity, 11, PURPLE);
+      // Weight (mg)
+      drawChalkArrow(ctx, cx, bcy - boxH/2, cx, bcy - boxH/2 + wLength, opacity, 1.5, CYAN);
+      drawChalkText(ctx, 'mg', cx + 4, bcy - boxH/2 + wLength + 6, opacity, LABEL_SIZE, CYAN);
 
-      // Normal force (N) perpendicular to surface
-      const perpAngle = angle - Math.PI / 2;
-      const nLength = wLength * Math.cos(angle);
-      const nx = cx + Math.cos(perpAngle) * nLength;
-      const ny = cy + Math.sin(perpAngle) * nLength;
-      drawChalkArrow(ctx, cx, cy, nx, ny, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'N', nx + 4, ny - 4, opacity, 11, CYAN);
-      
-      // mg cos(theta) component into surface
-      const mgcx = cx - Math.cos(perpAngle) * nLength;
-      const mgcy = cy - Math.sin(perpAngle) * nLength;
-      drawChalkArrow(ctx, cx, cy, mgcx, mgcy, opacity * 0.4, 1, WHITE);
+      // Normal force (mg cosθ)
+      const nx = cx + Math.cos(angle - Math.PI / 2) * nLength;
+      const ny = bcy - boxH/2 + Math.sin(angle - Math.PI / 2) * nLength;
+      drawChalkArrow(ctx, cx, bcy - boxH/2, nx, ny, opacity, 1.5, PURPLE);
+      drawChalkText(ctx, 'N', nx - 12, ny - 6, opacity, LABEL_SIZE, PURPLE);
     }
-
+    
     if (prog > 0.7) {
-      const wLength = 32;
-      // Friction (f) opposing motion
+      // Friction opposing motion
       const fricAngle = angle + Math.PI;
-      const fLength = wLength * Math.sin(angle) * 0.6; // Kinetic friction
-      const fx = cx + Math.cos(fricAngle) * fLength;
-      const fy = cy + Math.sin(fricAngle) * fLength;
-      drawChalkArrow(ctx, cx, cy, fx, fy, opacity * 0.8, 1.5, PURPLE);
-      drawChalkText(ctx, 'f', fx - 8, fy - 6, opacity * 0.8, 11, PURPLE);
+      const fx = cx + Math.cos(fricAngle) * friction;
+      const fy = bcy - boxH/2 + Math.sin(fricAngle) * friction;
+      drawChalkArrow(ctx, cx, bcy - boxH/2, fx, fy, opacity * 0.8, 1.5, PURPLE);
+      drawChalkText(ctx, 'f', fx - 10, fy - 6, opacity * 0.8, LABEL_SIZE, PURPLE);
 
-      // mg sin(theta) force component down the slope
-      const mgxLength = wLength * Math.sin(angle);
-      const mgxx = cx + Math.cos(angle) * mgxLength;
-      const mgxy = cy + Math.sin(angle) * mgxLength;
-      drawChalkArrow(ctx, cx, cy, mgxx, mgxy, opacity * 0.8, 1.2, WHITE);
-      drawChalkText(ctx, 'mg sinθ', mgxx + 4, mgxy + 8, opacity * 0.8, 10, WHITE);
+      // mg sin(theta) component
+      const mgxx = cx + Math.cos(angle) * fParallel;
+      const mgxy = bcy - boxH/2 + Math.sin(angle) * fParallel;
+      drawChalkArrow(ctx, cx, bcy - boxH/2, mgxx, mgxy, opacity * 0.8, 1.2, WHITE);
+      drawChalkText(ctx, 'mg sinθ', mgxx + 4, mgxy + 8, opacity * 0.8, LABEL_SIZE, WHITE);
     }
   },
   // ==========================================
@@ -477,24 +515,33 @@ export const physicsDiagrams = {
       const maxRadius = sw * 0.6;
       const ripplePhase = (globalTime * 0.15) % 10;
 
+      // Physics: Real Huygens wavelets expand as complete circles
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(slitBarrierX + 2, sy - graphHeight, graphWidth, graphHeight * 2);
+      ctx.clip(); // Only show waves to the right of the barrier
+
       for (let r = ripplePhase; r <= maxRadius; r += 10) {
         if (r <= 0) continue;
+        const op = opacity * 0.45 * (1 - r / maxRadius);
+        
         ctx.save();
         ctx.beginPath();
-        ctx.arc(slitBarrierX, s1y, r, -Math.PI / 3, Math.PI / 3);
-        ctx.strokeStyle = `${PURPLE}${opacity * 0.45 * (1 - r / maxRadius)})`;
+        ctx.arc(slitBarrierX, s1y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `${PURPLE}${op})`;
         ctx.lineWidth = 1.0;
         ctx.stroke();
         ctx.restore();
 
         ctx.save();
         ctx.beginPath();
-        ctx.arc(slitBarrierX, s2y, r, -Math.PI / 3, Math.PI / 3);
-        ctx.strokeStyle = `${CYAN}${opacity * 0.45 * (1 - r / maxRadius)})`;
+        ctx.arc(slitBarrierX, s2y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `${CYAN}${op})`;
         ctx.lineWidth = 1.0;
         ctx.stroke();
         ctx.restore();
       }
+      ctx.restore();
     }
 
     if (prog > 0.7) {
@@ -514,8 +561,7 @@ export const physicsDiagrams = {
   // ==========================================
   capacitor: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
+    const { cx, cy } = getCenter(x, y, graphWidth);
     const pw = graphWidth * 0.65;
     const p1y = cy - 18;
     const p2y = cy + 18;
@@ -527,30 +573,32 @@ export const physicsDiagrams = {
       const signCount = 6;
       for (let i = 0; i < signCount; i++) {
         const sx = cx - pw / 2 + (i + 0.5) * (pw / signCount);
-        drawChalkText(ctx, '+', sx - 3, p1y - 12, opacity * 0.8, 9, PURPLE);
-        drawChalkText(ctx, '-', sx - 3, p2y + 8, opacity * 0.8, 9, CYAN);
+        drawChalkText(ctx, '+', sx - 3, p1y - 12, opacity * 0.8, LABEL_SIZE, PURPLE);
+        drawChalkText(ctx, '-', sx - 3, p2y + 12, opacity * 0.8, LABEL_SIZE, CYAN);
       }
     }
 
     if (prog > 0.4) {
+      // Physics: E-field vectors animated as expanding arrows, not moving charges
       const arrowCount = 5;
+      const phase = (globalTime * 0.05) % Math.PI;
+      const fieldStrength = Math.abs(Math.sin(phase));
+      const arrowLen = (p2y - p1y - 8) * fieldStrength;
+
       for (let i = 0; i < arrowCount; i++) {
         const ax = cx - pw / 2 + (i + 0.5) * (pw / arrowCount);
-        drawChalkArrow(ctx, ax, p1y + 2, ax, p2y - 2, opacity * 0.6, 1.0, CYAN);
-
-        const dotY = p1y + 4 + ((globalTime * 0.4 + i * 6) % (p2y - p1y - 8));
-        drawChalkLine(ctx, [{ x: ax, y: dotY }, { x: ax, y: dotY + 1 }], opacity, 3, PURPLE);
+        if (arrowLen > 2) {
+          drawChalkArrow(ctx, ax, p1y + 4, ax, p1y + 4 + arrowLen, opacity * 0.7, 1.2, CYAN);
+        }
       }
     }
 
     if (prog > 0.7) {
+      // Circuit connections
       drawChalkLine(ctx, [{ x: cx - pw / 2, y: p1y }, { x: cx - pw / 2 - 12, y: p1y }, { x: cx - pw / 2 - 12, y: cy }, { x: cx - 20, y: cy }], opacity * 0.45, 1);
       drawChalkLine(ctx, [{ x: cx + pw / 2, y: p2y }, { x: cx + pw / 2 + 12, y: p2y }, { x: cx + pw / 2 + 12, y: cy }, { x: cx + 20, y: cy }], opacity * 0.45, 1);
 
-      drawChalkLine(ctx, [{ x: cx - 4, y: cy - 6 }, { x: cx - 4, y: cy + 6 }], opacity * 0.8, 1.5, PURPLE);
-      drawChalkLine(ctx, [{ x: cx + 4, y: cy - 3 }, { x: cx + 4, y: cy + 3 }], opacity * 0.8, 1.0, CYAN);
-
-      drawChalkText(ctx, 'E', cx + 12, cy - 14, opacity * 0.75, 10);
+      drawChalkText(ctx, 'E Field', cx + pw / 2 + 4, cy - 10, opacity * 0.75, LABEL_SIZE, CYAN);
     }
   },
   // ==========================================
@@ -589,8 +637,11 @@ export const physicsDiagrams = {
       ctx.stroke();
       ctx.restore();
 
-      drawChalkText(ctx, 'n=1', cx + r1 + 3, cy - 8, opacity * 0.4, 9);
-      drawChalkText(ctx, 'n=2', cx + r2 + 3, cy - 8, opacity * 0.4, 9);
+      drawChalkText(ctx, 'n=1', cx + r1 + 3, cy - 8, opacity * 0.4, LABEL_SIZE - 2);
+      drawChalkText(ctx, 'n=2', cx + r2 + 3, cy - 8, opacity * 0.4, LABEL_SIZE - 2);
+      
+      // Disclaimer
+      drawChalkText(ctx, 'Bohr Model (Simplified)', cx - 40, cy + r2 + 15, opacity * 0.6, LABEL_SIZE - 2, CYAN);
     }
 
     if (prog > 0.6) {
@@ -674,6 +725,10 @@ export const physicsDiagrams = {
 
         loopPts.length = 0;
       }
+      
+      // Physics: Right-hand rule (Current I in wire creates B loops)
+      drawChalkArrow(ctx, cx - sw / 2 - 10, cy, cx + sw / 2 + 10, cy, opacity * 0.8, 2.0, CYAN);
+      drawChalkText(ctx, 'I', cx + sw / 2 + 15, cy - 6, opacity, LABEL_SIZE, CYAN);
     }
 
     if (prog > 0.4) {
@@ -715,9 +770,8 @@ export const physicsDiagrams = {
   // Circuit Diagram
   // ==========================================
   circuit: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
-    const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
+    const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE, drawParticle } = helpers;
+    const { cx, cy } = getCenter(x, y, graphWidth);
     const cw = graphWidth * 0.7;
     const ch = graphHeight * 0.55;
 
@@ -727,17 +781,20 @@ export const physicsDiagrams = {
     const botY = cy + ch / 2;
 
     if (prog > 0.1) {
-      drawChalkLine(ctx, [{ x: leftX, y: topY }, { x: leftX, y: cy - 5 }], opacity * 0.5, 1.2);
-      drawChalkLine(ctx, [{ x: leftX, y: cy + 5 }, { x: leftX, y: botY }], opacity * 0.5, 1.2);
+      // Wires
+      drawChalkLine(ctx, [{ x: leftX, y: topY }, { x: leftX, y: cy - 10 }], opacity * 0.5, 1.2);
+      drawChalkLine(ctx, [{ x: leftX, y: cy + 10 }, { x: leftX, y: botY }], opacity * 0.5, 1.2);
 
-      drawChalkLine(ctx, [{ x: leftX - 8, y: cy - 4 }, { x: leftX + 8, y: cy - 4 }], opacity, 2.0, PURPLE);
-      drawChalkLine(ctx, [{ x: leftX - 4, y: cy + 3 }, { x: leftX + 4, y: cy + 3 }], opacity, 1.2, CYAN);
-      drawChalkText(ctx, '+', leftX + 10, cy - 14, opacity * 0.8, 9, PURPLE);
-      drawChalkText(ctx, '-', leftX + 8, cy + 6, opacity * 0.8, 9, CYAN);
-      drawChalkText(ctx, 'V', leftX - 18, cy - 6, opacity, 10);
+      // Battery
+      drawChalkLine(ctx, [{ x: leftX - 12, y: cy - 4 }, { x: leftX + 12, y: cy - 4 }], opacity, 2.0, PURPLE);
+      drawChalkLine(ctx, [{ x: leftX - 6, y: cy + 4 }, { x: leftX + 6, y: cy + 4 }], opacity, 1.2, CYAN);
+      drawChalkText(ctx, '+', leftX + 16, cy - 8, opacity * 0.8, LABEL_SIZE, PURPLE);
+      drawChalkText(ctx, '-', leftX + 12, cy + 8, opacity * 0.8, LABEL_SIZE, CYAN);
+      drawChalkText(ctx, 'E (EMF)', leftX - 25, cy - 10, opacity, LABEL_SIZE, PURPLE);
     }
 
     if (prog > 0.3) {
+      // Resistor
       const resY1 = cy - 20;
       const resY2 = cy + 20;
       drawChalkLine(ctx, [{ x: rightX, y: topY }, { x: rightX, y: resY1 }], opacity * 0.5, 1.2);
@@ -748,44 +805,39 @@ export const physicsDiagrams = {
       const step = (resY2 - resY1) / count;
       for (let i = 0; i < count; i++) {
         const ry = resY1 + (i + 0.5) * step;
-        const rx = rightX + (i % 2 === 0 ? 6 : -6);
+        const rx = rightX + (i % 2 === 0 ? 8 : -8);
         resPts.push({ x: rx, y: ry });
       }
       resPts.push({ x: rightX, y: resY2 });
-      drawChalkLine(ctx, resPts, opacity, 1.5, WHITE);
-      drawChalkText(ctx, 'R', rightX + 10, cy - 6, opacity, 11);
+      drawChalkLine(ctx, resPts, opacity * 0.8, 1.5, CYAN);
+      drawChalkText(ctx, 'R', rightX + 12, cy, opacity, LABEL_SIZE, CYAN);
+    }
 
+    if (prog > 0.5) {
       drawChalkLine(ctx, [{ x: leftX, y: topY }, { x: rightX, y: topY }], opacity * 0.5, 1.2);
       drawChalkLine(ctx, [{ x: leftX, y: botY }, { x: rightX, y: botY }], opacity * 0.5, 1.2);
+
+      // Physics: E-field in the wire drives current
+      drawChalkArrow(ctx, cx - 15, topY - 12, cx + 15, topY - 12, opacity * 0.7, 1, PURPLE);
+      drawChalkText(ctx, 'E field', cx - 15, topY - 16, opacity * 0.7, LABEL_SIZE - 2, PURPLE);
     }
 
     if (prog > 0.7) {
-      const flowLength = 2 * (cw + ch);
-      const flowSpeed = globalTime * 1.5;
-      const chargeCount = 4;
+      const perim = cw * 2 + ch * 2;
+      const tVal = (globalTime * 0.05) % perim;
+      const numCharges = 8;
+      
+      for (let k = 0; k < numCharges; k++) {
+        let d = (tVal + k * (perim / numCharges)) % perim;
+        let px, py;
+        if (d < cw) { px = leftX + d; py = topY; }
+        else if (d < cw + ch) { px = rightX; py = topY + (d - cw); }
+        else if (d < cw * 2 + ch) { px = rightX - (d - (cw + ch)); py = botY; }
+        else { px = leftX; py = botY - (d - (cw * 2 + ch)); }
 
-      for (let i = 0; i < chargeCount; i++) {
-        const dist = (flowSpeed + i * (flowLength / chargeCount)) % flowLength;
-        let px = leftX, py = topY;
-
-        if (dist < cw) {
-          px = leftX + dist;
-          py = topY;
-        } else if (dist < cw + ch) {
-          px = rightX;
-          py = topY + (dist - cw);
-        } else if (dist < cw * 2 + ch) {
-          px = rightX - (dist - cw - ch);
-          py = botY;
-        } else {
-          px = leftX;
-          py = botY - (dist - cw * 2 - ch);
-        }
-        drawChalkText(ctx, '•', px - 2, py, opacity * 0.9, 12, CYAN);
+        drawParticle(ctx, px, py, opacity, CYAN);
       }
-
-      drawChalkArrow(ctx, cx - 10, topY, cx + 15, topY, opacity, 1.2, CYAN);
-      drawChalkText(ctx, 'I', cx + 2, topY - 14, opacity, 11, CYAN);
+      drawChalkText(ctx, 'I (drift)', cx - 15, topY + 14, opacity * 0.9, LABEL_SIZE, CYAN);
     }
   },
   // ==========================================
@@ -801,8 +853,10 @@ export const physicsDiagrams = {
     if (prog > 0.1) {
       drawChalkLine(ctx, [{ x: cx - gw, y: cy - 10 }, { x: cx - gw * 0.4, y: cy - 10 }], opacity * 0.8, 1.2, PURPLE);
       drawChalkLine(ctx, [{ x: cx - gw, y: cy + 10 }, { x: cx - gw * 0.4, y: cy + 10 }], opacity * 0.8, 1.2, PURPLE);
-      drawChalkText(ctx, 'A', cx - gw - 12, cy - 14, opacity, 11, PURPLE);
-      drawChalkText(ctx, 'B', cx - gw - 12, cy + 4, opacity, 11, PURPLE);
+      drawChalkText(ctx, 'A', cx - gw - 12, cy - 14, opacity, LABEL_SIZE, PURPLE);
+      drawChalkText(ctx, 'B', cx - gw - 12, cy + 4, opacity, LABEL_SIZE, PURPLE);
+      
+      drawChalkText(ctx, 'AND Gate', cx - 20, cy - gh / 2 - 10, opacity * 0.8, LABEL_SIZE - 1, WHITE);
     }
 
     const backX = cx - gw * 0.4;
@@ -848,19 +902,20 @@ export const physicsDiagrams = {
     }
   },
   // ==========================================
-  // Lens Diagram
+  // Lens Diagram (Real Image Optics)
   // ==========================================
   lens: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
+    const { cx, cy } = getCenter(x, y, graphWidth);
 
     if (prog > 0.1) {
+      // Principal axis
       ctx.save();
       ctx.setLineDash([4, 4]);
       drawChalkLine(ctx, [{ x: x + 5, y: cy }, { x: x + graphWidth - 5, y: cy }], opacity * 0.35, 1);
       ctx.restore();
 
+      // Draw biconvex lens
       const lensPts1 = [];
       const lensPts2 = [];
       const lh = graphHeight * 0.42;
@@ -871,42 +926,64 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, lensPts1, opacity * 0.7, 1.5, PURPLE);
       drawChalkLine(ctx, lensPts2, opacity * 0.7, 1.5, PURPLE);
 
+      // Focus
       const fDist = graphWidth * 0.28;
       drawChalkLine(ctx, [{ x: cx + fDist, y: cy - 3 }, { x: cx + fDist, y: cy + 3 }], opacity * 0.5, 1);
-      drawChalkText(ctx, 'F', cx + fDist - 4, cy + 6, opacity * 0.6, 10);
+      drawChalkText(ctx, 'F', cx + fDist - 4, cy + 12, opacity * 0.6, LABEL_SIZE);
+      drawChalkLine(ctx, [{ x: cx - fDist, y: cy - 3 }, { x: cx - fDist, y: cy + 3 }], opacity * 0.5, 1);
+      drawChalkText(ctx, 'F', cx - fDist - 4, cy + 12, opacity * 0.6, LABEL_SIZE);
     }
 
     const fDist = graphWidth * 0.28;
-    const ry1 = cy - 14;
-    const ry3 = cy + 14;
+    // Object parameters
+    const objX = cx - fDist * 1.4; // Object outside F
+    const objH = 20;
+    const objY = cy - objH;
+    
+    // Lens equations: 1/f = 1/v - 1/u (u is negative here)
+    const u = -(cx - objX);
+    const f = fDist;
+    const v = 1 / (1/f + 1/u); // Image distance
+    const mag = v / u; // Magnification
+    
+    const imgX = cx + v;
+    const imgY = cy - (objH * mag); // Negative mag means inverted
 
     if (prog > 0.3) {
-      drawChalkArrow(ctx, x + 8, ry1, cx, ry1, opacity, 1.2, CYAN);
-      drawChalkArrow(ctx, x + 8, cy, cx, cy, opacity * 0.7, 1.2, WHITE);
-      drawChalkArrow(ctx, x + 8, ry3, cx, ry3, opacity, 1.2, CYAN);
+      // Draw object
+      drawChalkArrow(ctx, objX, cy, objX, objY, opacity, 1.5, WHITE);
+      drawChalkText(ctx, 'Object', objX - 15, objY - 6, opacity, LABEL_SIZE - 2, WHITE);
     }
+    
     if (prog > 0.6) {
-      drawChalkArrow(ctx, cx, ry1, cx + fDist * 1.4, cy + 5, opacity, 1.2, CYAN);
-      drawChalkArrow(ctx, cx, cy, cx + fDist * 1.4, cy, opacity * 0.7, 1.2, WHITE);
-      drawChalkArrow(ctx, cx, ry3, cx + fDist * 1.4, cy - 5, opacity, 1.2, CYAN);
+      // Draw image
+      drawChalkArrow(ctx, imgX, cy, imgX, imgY, opacity, 1.5, PURPLE);
+      drawChalkText(ctx, 'Real Image', imgX - 15, imgY + 12, opacity, LABEL_SIZE - 2, PURPLE);
     }
 
     if (prog > 0.6) {
       const t = (globalTime * 0.012) % 1.0;
       if (t < 0.5) {
-        const u = t * 2;
-        const px1 = (x + 8) + (cx - (x + 8)) * u;
-        drawChalkLine(ctx, [{ x: px1, y: ry1 }, { x: px1 + 1, y: ry1 }], opacity * 0.9, 3, CYAN);
-        drawChalkLine(ctx, [{ x: px1, y: ry3 }, { x: px1 + 1, y: ry3 }], opacity * 0.9, 3, CYAN);
-        drawChalkLine(ctx, [{ x: px1, y: cy }, { x: px1 + 1, y: cy }], opacity * 0.8, 3, WHITE);
+        // Ray 1: Parallel to axis, then through focus
+        const ut = t * 2;
+        const r1x = objX + (cx - objX) * ut;
+        drawChalkLine(ctx, [{ x: r1x, y: objY }, { x: r1x + 1, y: objY }], opacity * 0.9, 3, CYAN);
+        
+        // Ray 2: Through optical center (straight line)
+        const r2x = objX + (cx - objX) * ut;
+        const r2y = objY + (cy - objY) * ut;
+        drawChalkLine(ctx, [{ x: r2x, y: r2y }, { x: r2x + 1, y: r2y }], opacity * 0.9, 3, CYAN);
       } else {
-        const u = (t - 0.5) * 2;
-        const px1 = cx + (fDist * 1.4) * u;
-        const py1 = ry1 + ((cy + 5) - ry1) * u;
-        const py3 = ry3 + ((cy - 5) - ry3) * u;
-        drawChalkLine(ctx, [{ x: px1, y: py1 }, { x: px1 + 1, y: py1 }], opacity * 0.9, 2.5, CYAN);
-        drawChalkLine(ctx, [{ x: px1, y: py3 }, { x: px1 + 1, y: py3 }], opacity * 0.9, 2.5, CYAN);
-        drawChalkLine(ctx, [{ x: px1, y: cy }, { x: px1 + 1, y: cy }], opacity * 0.8, 2.5, WHITE);
+        const ut = (t - 0.5) * 2;
+        // Ray 1 continues: from lens (cx, objY) through Focus (cx+f, cy) to image (imgX, imgY)
+        const r1x = cx + (imgX - cx) * ut;
+        const r1y = objY + (imgY - objY) * ut;
+        drawChalkLine(ctx, [{ x: r1x, y: r1y }, { x: r1x + 1, y: r1y }], opacity * 0.9, 2.5, CYAN);
+        
+        // Ray 2 continues: from optical center (cx, cy) to image (imgX, imgY)
+        const r2x = cx + (imgX - cx) * ut;
+        const r2y = cy + (imgY - cy) * ut;
+        drawChalkLine(ctx, [{ x: r2x, y: r2y }, { x: r2x + 1, y: r2y }], opacity * 0.9, 2.5, CYAN);
       }
     }
   },
@@ -915,9 +992,18 @@ export const physicsDiagrams = {
   // ==========================================
   newton2: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
-    const boxX = cx - 25 + Math.sin(globalTime * 0.03) * (graphWidth * 0.22);
+    const { cx, cy } = getCenter(x, y, graphWidth);
+    
+    // Physics: F = ma. Animate force increasing -> accel increasing -> speed increasing
+    const cycle = (globalTime * 0.015) % Math.PI;
+    const forceMag = Math.max(0, Math.sin(cycle)) * 50; 
+    const mass = 10;
+    const accelMag = forceMag / mass; // F = ma
+    
+    // Velocity integrates acceleration
+    const velMag = Math.max(0, -Math.cos(cycle) + 1) * 20; 
+    
+    const boxX = cx - 40 + velMag;
     const boxY = cy + 12;
 
     if (prog > 0.1) {
@@ -930,15 +1016,22 @@ export const physicsDiagrams = {
         { x: boxX - bw / 2, y: boxY + bh / 2 },
         { x: boxX - bw / 2, y: boxY - bh / 2 }
       ], opacity, 1.5, WHITE);
-      drawChalkText(ctx, 'm', boxX - 4, boxY - 4, opacity * 0.8, 10, WHITE);
+      drawChalkText(ctx, `${mass}kg`, boxX - 12, boxY - 14, opacity * 0.8, LABEL_SIZE, WHITE);
     }
-    if (prog > 0.4) {
-      drawChalkArrow(ctx, boxX + 12, boxY, boxX + 38, boxY, opacity, 1.6, CYAN);
-      drawChalkText(ctx, 'F', boxX + 42, boxY - 5, opacity, 11, CYAN);
+    
+    if (prog > 0.4 && forceMag > 2) {
+      // Force vector
+      drawChalkArrow(ctx, boxX + 12, boxY, boxX + 12 + forceMag, boxY, opacity, 1.6, CYAN);
+      drawChalkText(ctx, `ΣF`, boxX + 16 + forceMag, boxY - 5, opacity, LABEL_SIZE, CYAN);
     }
-    if (prog > 0.7) {
-      drawChalkArrow(ctx, boxX - 10, boxY - 16, boxX + 15, boxY - 16, opacity * 0.8, 1.2, PURPLE);
-      drawChalkText(ctx, 'a', boxX + 19, boxY - 21, opacity * 0.8, 10, PURPLE);
+    
+    if (prog > 0.7 && accelMag > 0.2) {
+      // Acceleration vector
+      drawChalkArrow(ctx, boxX - 10, boxY - 20, boxX - 10 + accelMag * 4, boxY - 20, opacity * 0.8, 1.2, PURPLE);
+      drawChalkText(ctx, `a`, boxX - 10 + accelMag * 4 + 4, boxY - 25, opacity * 0.8, LABEL_SIZE, PURPLE);
+      
+      // Formula
+      drawChalkText(ctx, 'ΣF = ma', cx - 20, cy - 20, opacity * 0.9, LABEL_SIZE, WHITE);
     }
   },
   // ==========================================
@@ -957,10 +1050,13 @@ export const physicsDiagrams = {
 
     const trajPts = [];
     const steps = 30;
+    const initialAngle = Math.PI / 4;
+    const v0 = 25;
+
     for (let i = 0; i <= steps; i++) {
-      const u = i / steps;
-      const px = lx + u * lw;
-      const py = ly - (graphHeight * 0.6) * 4 * u * (1 - u);
+      const t = i / steps;
+      const px = lx + (v0 * Math.cos(initialAngle)) * t * 2;
+      const py = ly - ((v0 * Math.sin(initialAngle)) * t * 2 - 0.5 * 9.8 * Math.pow(t * 2, 2));
       trajPts.push({ x: px, y: py });
     }
 
@@ -972,74 +1068,88 @@ export const physicsDiagrams = {
 
     if (prog > 0.5) {
       const tVal = (globalTime * 0.005) % 1.0;
-      const px = lx + tVal * lw;
-      const py = ly - (graphHeight * 0.6) * 4 * tVal * (1 - tVal);
+      const px = lx + (v0 * Math.cos(initialAngle)) * tVal * 2;
+      const py = ly - ((v0 * Math.sin(initialAngle)) * tVal * 2 - 0.5 * 9.8 * Math.pow(tVal * 2, 2));
 
       ctx.beginPath();
       ctx.arc(px, py, 3, 0, Math.PI * 2);
       ctx.fillStyle = `${CYAN}${opacity})`;
       ctx.fill();
 
-      const vSlopeX = lw;
-      const vSlopeY = -(graphHeight * 0.6) * 4 * (1 - 2 * tVal);
-      const angle = Math.atan2(vSlopeY, vSlopeX);
-      drawChalkArrow(ctx, px, py, px + Math.cos(angle) * 22, py + Math.sin(angle) * 22, opacity, 1.2, CYAN);
-
-      drawChalkArrow(ctx, px, py, px, py + 14, opacity * 0.7, 1.0, PURPLE);
-      drawChalkText(ctx, 'g', px + 3, py + 12, opacity * 0.7, 9, PURPLE);
+      // Velocity Components (vx, vy)
+      const vx = v0 * Math.cos(initialAngle);
+      const vy = v0 * Math.sin(initialAngle) - 9.8 * tVal * 2;
+      drawChalkArrow(ctx, px, py, px + vx, py, opacity, 1.2, CYAN);
+      drawChalkArrow(ctx, px, py, px, py - vy, opacity, 1.2, PURPLE);
+      drawChalkText(ctx, 'v_x', px + vx, py - 10, opacity * 0.8, 9, CYAN);
+      drawChalkText(ctx, 'v_y', px - 15, py - vy, opacity * 0.8, 9, PURPLE);
     }
   },
   // ==========================================
   // Road Banking Diagram
   // ==========================================
   roadBanking: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
-    const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
-    const cx = x + graphWidth / 2;
-    const cy = y + 10;
-    const bw = graphWidth * 0.7;
-    const bh = graphHeight * 0.5;
-
-    const p1 = { x: cx - bw / 2, y: cy + bh / 2 };
-    const p2 = { x: cx + bw / 2, y: cy + bh / 2 };
-    const p3 = { x: cx - bw / 2, y: cy - bh / 2 };
+    const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE, WHITE } = helpers;
+    const { cx, cy } = getCenter(x, y, graphWidth);
+    const slopeW = graphWidth - 50;
+    const slopeH = graphHeight * 0.45;
+    const angle = Math.atan2(slopeH, slopeW);
+    const boxW = 24, boxH = 16;
+    
+    // Centers
+    const bcy = cy + 10;
+    const boxCx = cx;
+    const boxCy = bcy - slopeH / 2 - boxH / 2;
 
     if (prog > 0.1) {
-      drawChalkLine(ctx, [p1, p2, p3, p1], opacity * 0.5, 1.2);
-      drawChalkText(ctx, 'θ', cx + bw / 2 - 20, cy + bh / 2 - 10, opacity * 0.8, 10);
+      drawChalkLine(ctx, [{ x: cx - slopeW / 2, y: bcy }, { x: cx + slopeW / 2, y: bcy }], opacity * 0.4, 1);
+      drawChalkLine(ctx, [{ x: cx - slopeW / 2, y: bcy }, { x: cx + slopeW / 2, y: bcy - slopeH }], opacity * 0.6, 1.5);
+      drawChalkText(ctx, 'θ', cx + slopeW / 2 - 20, bcy - 5, opacity * 0.6, LABEL_SIZE);
     }
-
-    const angle = Math.atan2(-bh, bw);
-    const bx = cx;
-    const by = cy;
-
+    
     if (prog > 0.3) {
       ctx.save();
-      ctx.translate(bx, by);
-      ctx.rotate(angle);
+      ctx.translate(boxCx, boxCy);
+      ctx.rotate(-angle);
       drawChalkLine(ctx, [
-        { x: -12, y: -8 },
-        { x: 12, y: -8 },
-        { x: 12, y: 0 },
-        { x: -12, y: 0 },
-        { x: -12, y: -8 }
+        { x: -boxW / 2, y: -boxH / 2 }, { x: boxW / 2, y: -boxH / 2 },
+        { x: boxW / 2, y: boxH / 2 }, { x: -boxW / 2, y: boxH / 2 }, { x: -boxW / 2, y: -boxH / 2 }
       ], opacity, 1.5, WHITE);
       ctx.restore();
     }
-
+    
+    const mg = 35;
     if (prog > 0.5) {
-      drawChalkArrow(ctx, bx, by - 4, bx, by + 26, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'mg', bx + 4, by + 22, opacity, 10, PURPLE);
+      // Weight
+      drawChalkArrow(ctx, boxCx, boxCy, boxCx, boxCy + mg, opacity, 1.5, PURPLE);
+      drawChalkText(ctx, 'mg', boxCx + 5, boxCy + mg + 5, opacity, LABEL_SIZE, PURPLE);
 
-      const perpAngle = angle - Math.PI / 2;
-      const nx = bx + Math.cos(perpAngle) * 26;
-      const ny = by + Math.sin(perpAngle) * 26;
-      drawChalkArrow(ctx, bx, by - 4, nx, ny, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'N', nx + 4, ny - 4, opacity, 10, CYAN);
+      // Normal Force (N = mg / cos(theta) so N cos = mg and N sin = Fc)
+      const nMag = mg / Math.cos(angle);
+      const nx = boxCx - Math.sin(angle) * nMag;
+      const ny = boxCy - Math.cos(angle) * nMag;
+      drawChalkArrow(ctx, boxCx, boxCy, nx, ny, opacity, 1.5, CYAN);
+      drawChalkText(ctx, 'N', nx - 10, ny - 5, opacity, LABEL_SIZE, CYAN);
     }
-
+    
     if (prog > 0.7) {
-      drawChalkArrow(ctx, bx, by - 4, bx - 26, by - 4, opacity * 0.7, 1.2, WHITE);
-      drawChalkText(ctx, 'F_c', bx - 36, by - 10, opacity * 0.7, 9);
+      // Physics: Decompose N into vertical and horizontal
+      const nMag = mg / Math.cos(angle);
+      const nx = boxCx - Math.sin(angle) * nMag;
+      const ny = boxCy - Math.cos(angle) * nMag;
+      
+      // Vertical component N cos(theta)
+      drawChalkArrow(ctx, boxCx, boxCy, boxCx, ny, opacity * 0.5, 1, CYAN);
+      ctx.save(); ctx.setLineDash([3,3]); ctx.strokeStyle=`rgba(255,255,255,${opacity*0.3})`;
+      ctx.beginPath(); ctx.moveTo(nx, ny); ctx.lineTo(boxCx, ny); ctx.stroke(); ctx.restore();
+      drawChalkText(ctx, 'N cosθ', boxCx + 4, ny + 10, opacity * 0.7, LABEL_SIZE - 1, CYAN);
+
+      // Horizontal component N sin(theta) which IS the centripetal force
+      drawChalkArrow(ctx, boxCx, boxCy, nx, boxCy, opacity * 0.8, 1.5, WHITE);
+      ctx.save(); ctx.setLineDash([3,3]); ctx.strokeStyle=`rgba(255,255,255,${opacity*0.3})`;
+      ctx.beginPath(); ctx.moveTo(nx, ny); ctx.lineTo(nx, boxCy); ctx.stroke(); ctx.restore();
+      
+      drawChalkText(ctx, 'F_c = N sinθ', nx - 35, boxCy + 15, opacity * 0.9, LABEL_SIZE, WHITE);
     }
   },
   // ==========================================
@@ -1463,6 +1573,7 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'e⁻', cx, cy - 26, opacity, 10, CYAN);
     }
   },
+
   // ==========================================
   // Spacetime Diagram
   // ==========================================
