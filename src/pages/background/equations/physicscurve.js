@@ -1,4 +1,7 @@
 export const physicsDiagrams = {
+  // ==========================================
+  // Circular Diagram
+  // ==========================================
   circular: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -35,6 +38,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'a_c', ax - 6, ay - 10, opacity * 0.8, 11, CYAN);
     }
   },
+  // ==========================================
+  // Pendulum Diagram
+  // ==========================================
   pendulum: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const cy = y - graphHeight * 0.4;
@@ -77,6 +83,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'mg', bx + 4, by + 22, opacity, 11, PURPLE);
     }
   },
+  // ==========================================
+  // Optics Diagram
+  // ==========================================
   optics: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const iy = y + 10;
@@ -120,6 +129,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Prism Diagram
+  // ==========================================
   prism: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const x1 = x + 15, y1 = y + graphHeight * 0.35;
@@ -172,6 +184,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Cell Diagram
+  // ==========================================
   cell: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const bx = x + 25;
@@ -235,6 +250,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'o', ex2 - 6, bubbleY - 8, opacity * 0.5, 7, CYAN);
     }
   },
+  // ==========================================
+  // Thermo Diagram
+  // ==========================================
   thermo: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + 25;
@@ -284,6 +302,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'dQ', cx + cw / 2 - 10, qY + 11, opacity, 11, CYAN);
     }
   },
+  // ==========================================
+  // Fbd Diagram
+  // ==========================================
   fbd: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const bx = x + 20;
@@ -291,6 +312,7 @@ export const physicsDiagrams = {
     const slopeW = graphWidth - 40;
     const slopeH = graphHeight * 0.55;
 
+    // Draw inclined plane
     if (prog > 0.1) {
       drawChalkLine(ctx, [
         { x: bx, y: by + slopeH },
@@ -298,19 +320,30 @@ export const physicsDiagrams = {
         { x: bx, y: by },
         { x: bx, y: by + slopeH }
       ], opacity * 0.5, 1.2);
+      
+      // Draw theta angle arc
+      ctx.beginPath();
+      ctx.arc(bx + slopeW, by + slopeH, 15, Math.PI, Math.PI + Math.atan2(slopeH, slopeW));
+      ctx.strokeStyle = `rgba(255,255,255,${opacity * 0.4})`;
+      ctx.stroke();
+      drawChalkText(ctx, 'θ', bx + slopeW - 25, by + slopeH - 8, opacity * 0.6, 10, WHITE);
     }
 
-    const angle = Math.atan2(-slopeH, slopeW);
+    const angle = Math.atan2(slopeH, slopeW);
     const tVal = (globalTime * 0.005) % 1.0;
     const slideDistance = tVal * (slopeW * 0.4);
+    
+    // Bottom center of the block on the slope
     const midX = bx + slopeW * 0.25 + Math.cos(angle) * slideDistance;
     const midY = by + slopeH * 0.25 + Math.sin(angle) * slideDistance;
+    
+    const bw = 24, bh = 16;
 
     if (prog > 0.3) {
       ctx.save();
       ctx.translate(midX, midY);
       ctx.rotate(angle);
-      const bw = 24, bh = 14;
+      // Draw block
       drawChalkLine(ctx, [
         { x: -bw / 2, y: -bh },
         { x: bw / 2, y: -bh },
@@ -321,30 +354,51 @@ export const physicsDiagrams = {
       ctx.restore();
     }
 
-    if (prog > 0.5) {
-      drawChalkArrow(ctx, midX, midY - 6, midX, midY + 28, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'W', midX + 4, midY + 22, opacity, 10, PURPLE);
+    // Calculate exact center of mass for forces
+    const cx = midX - Math.sin(angle) * (bh / 2);
+    const cy = midY - Math.cos(angle) * (bh / 2);
 
+    if (prog > 0.5) {
+      // Weight (mg) pointing straight down
+      const wLength = 32;
+      drawChalkArrow(ctx, cx, cy, cx, cy + wLength, opacity, 1.5, PURPLE);
+      drawChalkText(ctx, 'mg', cx + 4, cy + wLength + 6, opacity, 11, PURPLE);
+
+      // Normal force (N) perpendicular to surface
       const perpAngle = angle - Math.PI / 2;
-      const nx = midX + Math.cos(perpAngle) * 26;
-      const ny = midY + Math.sin(perpAngle) * 26;
-      drawChalkArrow(ctx, midX, midY - 6, nx, ny, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'N', nx + 4, ny - 4, opacity, 10, CYAN);
+      const nLength = wLength * Math.cos(angle);
+      const nx = cx + Math.cos(perpAngle) * nLength;
+      const ny = cy + Math.sin(perpAngle) * nLength;
+      drawChalkArrow(ctx, cx, cy, nx, ny, opacity, 1.5, CYAN);
+      drawChalkText(ctx, 'N', nx + 4, ny - 4, opacity, 11, CYAN);
+      
+      // mg cos(theta) component into surface
+      const mgcx = cx - Math.cos(perpAngle) * nLength;
+      const mgcy = cy - Math.sin(perpAngle) * nLength;
+      drawChalkArrow(ctx, cx, cy, mgcx, mgcy, opacity * 0.4, 1, WHITE);
     }
 
     if (prog > 0.7) {
+      const wLength = 32;
+      // Friction (f) opposing motion
       const fricAngle = angle + Math.PI;
-      const fx = midX + Math.cos(fricAngle) * 24;
-      const fy = midY + Math.sin(fricAngle) * 24;
-      drawChalkArrow(ctx, midX, midY - 6, fx, fy, opacity * 0.8, 1.2, PURPLE);
-      drawChalkText(ctx, 'f', fx - 8, fy - 6, opacity * 0.8, 10, PURPLE);
+      const fLength = wLength * Math.sin(angle) * 0.6; // Kinetic friction
+      const fx = cx + Math.cos(fricAngle) * fLength;
+      const fy = cy + Math.sin(fricAngle) * fLength;
+      drawChalkArrow(ctx, cx, cy, fx, fy, opacity * 0.8, 1.5, PURPLE);
+      drawChalkText(ctx, 'f', fx - 8, fy - 6, opacity * 0.8, 11, PURPLE);
 
-      const ax = midX + Math.cos(angle) * 24;
-      const ay = midY + Math.sin(angle) * 24;
-      drawChalkArrow(ctx, midX, midY - 6, ax, ay, opacity * 0.8, 1.2, WHITE);
-      drawChalkText(ctx, 'a', ax + 4, ay + 4, opacity * 0.8, 10, WHITE);
+      // mg sin(theta) force component down the slope
+      const mgxLength = wLength * Math.sin(angle);
+      const mgxx = cx + Math.cos(angle) * mgxLength;
+      const mgxy = cy + Math.sin(angle) * mgxLength;
+      drawChalkArrow(ctx, cx, cy, mgxx, mgxy, opacity * 0.8, 1.2, WHITE);
+      drawChalkText(ctx, 'mg sinθ', mgxx + 4, mgxy + 8, opacity * 0.8, 10, WHITE);
     }
   },
+  // ==========================================
+  // Waves Diagram
+  // ==========================================
   waves: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -391,6 +445,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Double Slit Diagram
+  // ==========================================
   doubleSlit: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, WHITE, CYAN, PURPLE } = helpers;
     const sx = x + 15;
@@ -452,6 +509,9 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, fringePts, opacity * 0.7, 1.2, CYAN);
     }
   },
+  // ==========================================
+  // Capacitor Diagram
+  // ==========================================
   capacitor: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -493,6 +553,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'E', cx + 12, cy - 14, opacity * 0.75, 10);
     }
   },
+  // ==========================================
+  // Bohr Diagram
+  // ==========================================
   bohr: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -579,6 +642,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Magnetic Diagram
+  // ==========================================
   magnetic: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -645,6 +711,9 @@ export const physicsDiagrams = {
       drawChalkArrow(ctx, cx + 2, cy + sh/2 + 3, cx - 5, cy + sh/2 + 3, opacity * 0.8, 1, CYAN);
     }
   },
+  // ==========================================
+  // Circuit Diagram
+  // ==========================================
   circuit: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -719,6 +788,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'I', cx + 2, topY - 14, opacity, 11, CYAN);
     }
   },
+  // ==========================================
+  // Logic Diagram
+  // ==========================================
   logic: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -775,6 +847,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Lens Diagram
+  // ==========================================
   lens: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -835,6 +910,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Newton2 Diagram
+  // ==========================================
   newton2: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -863,6 +941,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'a', boxX + 19, boxY - 21, opacity * 0.8, 10, PURPLE);
     }
   },
+  // ==========================================
+  // Projectile Diagram
+  // ==========================================
   projectile: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -908,6 +989,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'g', px + 3, py + 12, opacity * 0.7, 9, PURPLE);
     }
   },
+  // ==========================================
+  // Road Banking Diagram
+  // ==========================================
   roadBanking: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -958,6 +1042,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'F_c', bx - 36, by - 10, opacity * 0.7, 9);
     }
   },
+  // ==========================================
+  // Spring Mass Diagram
+  // ==========================================
   springMass: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -1009,6 +1096,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Damped Diagram
+  // ==========================================
   damped: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, WHITE, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -1056,6 +1146,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Doppler Diagram
+  // ==========================================
   doppler: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const lx = x + 15;
@@ -1095,6 +1188,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Streamline Diagram
+  // ==========================================
   streamline: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -1146,6 +1242,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Carnot Diagram
+  // ==========================================
   carnot: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, CYAN, PURPLE } = helpers;
     const lx = x + 25;
@@ -1211,6 +1310,9 @@ export const physicsDiagrams = {
       ctx.fill();
     }
   },
+  // ==========================================
+  // Transverse Diagram
+  // ==========================================
   transverse: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkArrow, CYAN, PURPLE, WHITE } = helpers;
     const lx = x + 15;
@@ -1250,6 +1352,9 @@ export const physicsDiagrams = {
       }
     }
   },
+  // ==========================================
+  // Induction Diagram
+  // ==========================================
   induction: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, WHITE, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -1305,6 +1410,9 @@ export const physicsDiagrams = {
       drawChalkLine(ctx, fLoop1, opacity * 0.3, 1, CYAN);
     }
   },
+  // ==========================================
+  // Photoelectric Diagram
+  // ==========================================
   photoelectric: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;
@@ -1355,6 +1463,9 @@ export const physicsDiagrams = {
       drawChalkText(ctx, 'e⁻', cx, cy - 26, opacity, 10, CYAN);
     }
   },
+  // ==========================================
+  // Spacetime Diagram
+  // ==========================================
   spacetime: (ctx, x, y, graphWidth, graphHeight, formulaLabel, prog, opacity, globalTime, helpers) => {
     const { drawChalkLine, drawChalkText, drawChalkArrow, CYAN, PURPLE } = helpers;
     const cx = x + graphWidth / 2;

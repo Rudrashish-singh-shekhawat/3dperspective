@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Play, Waves, Activity, CircleDashed, Image as ImageIcon,
@@ -6,6 +6,36 @@ import {
   Smartphone, Wifi, Sparkles
 } from 'lucide-react';
 import JosephFourierCanvas from '../components/JosephFourierCanvas';
+import Background from './background/Background';
+import EquationsBackground from './background/equations/EquationsBackground';
+
+
+/* ─── Scroll Reveal Component ─── */
+const ScrollReveal = ({ children, className = '' }) => {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-[800ms] ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+        } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
 
 /* ─── tiny animated sine-wave canvas ─── */
 function SineWaveCanvas({ color = '#3b82f6', frequency = 1, amplitude = 1, className = '' }) {
@@ -235,13 +265,13 @@ function SectionHead({ icon: Icon, color, title, subtitle }) {
   };
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${colors[color]}`}>
-          <Icon size={24} />
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border ${colors[color]}`}>
+          <Icon size={20} className="sm:w-6 sm:h-6" />
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h2>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug">{title}</h2>
       </div>
-      {subtitle && <p className="text-ink-dim ml-16 text-sm font-mono uppercase tracking-widest">{subtitle}</p>}
+      {subtitle && <p className="text-white/60 ml-14 sm:ml-16 text-xs sm:text-sm font-mono uppercase tracking-widest">{subtitle}</p>}
     </div>
   );
 }
@@ -258,10 +288,10 @@ function InfoCard({ icon: Icon, title, children, accent = 'blue' }) {
   return (
     <div className={`group p-5 md:p-6 rounded-2xl bg-white/[0.02] border ${accents[accent]} transition-all duration-500 ease-in-out flex flex-col gap-3 cursor-default`}>
       <div className="flex items-center gap-3">
-        <Icon size={20} className="text-ink-dim group-hover:text-white transition-all duration-500 ease-in-out" />
-        <h4 className="font-semibold text-ink group-hover:text-white transition-all duration-500 ease-in-out">{title}</h4>
+        <Icon size={20} className="text-white/60 group-hover:text-white transition-all duration-500 ease-in-out" />
+        <h4 className="font-semibold text-white group-hover:text-white transition-all duration-500 ease-in-out">{title}</h4>
       </div>
-      <p className="text-ink-dim leading-relaxed text-[15px] group-hover:text-white/80 transition-all duration-500 ease-in-out">{children}</p>
+      <p className="text-white/60 leading-relaxed text-[15px] group-hover:text-white/80 transition-all duration-500 ease-in-out">{children}</p>
     </div>
   );
 }
@@ -272,41 +302,37 @@ export default function FourierArticle() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
-    <div className="min-h-screen bg-surface text-ink font-sans selection:bg-blue/30 overflow-x-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[0%] left-[20%] w-[40%] h-[30%] bg-blue/10 rounded-full blur-[150px] mix-blend-screen" />
-        <div className="absolute top-[40%] right-[10%] w-[30%] h-[30%] bg-purple/10 rounded-full blur-[150px] mix-blend-screen" />
-        <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-green/10 rounded-full blur-[150px] mix-blend-screen" />
-      </div>
+    <div className="min-h-screen bg-[#0f1311] text-white font-sans selection:bg-white/20 overflow-x-hidden relative">
+      <Background />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12 md:py-20 pb-20 md:pb-32 flex flex-col gap-16 md:gap-28">
 
         {/* ═══ HERO ═══ */}
-        <section className="flex flex-col gap-6 text-center items-center mt-12 animate-fadeSlideIn">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-ink-dim font-mono text-sm tracking-widest uppercase mb-4">
-            <Activity size={16} className="text-blue" />
-            Interactive Learning
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
-            An Introduction to <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue via-purple to-pink animate-gradientShift bg-[length:200%_100%]">
-              Fourier Series &amp; Transforms
+        <section className="flex flex-col gap-6 text-center justify-center items-center h-screen -mt-12 md:-mt-20 pointer-events-none px-4">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] animate-fadeSlideIn break-words">
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 block pb-2">
+              Fourier Series
             </span>
           </h1>
-          <p className="text-xl text-ink-dim max-w-2xl leading-relaxed mt-4">
-            From sound waves to JPEG compression, from MRI scanners to drawing pictures with circles —
-            Fourier's idea is everywhere. Let's understand it visually, step by step.
-          </p>
-          <button
-            onClick={() => navigate('/fourier/app')}
-            className="mt-8 flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-white text-black font-bold rounded-xl hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] group mb-8"
-          >
-            <Play size={20} className="fill-black group-hover:text-blue transition-colors" />
-            <span>Skip to Visualizer App</span>
-            <ChevronRight size={20} className="ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          </button>
         </section>
+
+        {/* ═══ SUBTITLE & CTA ═══ */}
+        <ScrollReveal>
+          <section className="flex flex-col items-center text-center gap-8 md:gap-10 -mt-10 md:-mt-20 px-4 md:px-0">
+            <p className="max-w-3xl text-lg md:text-2xl text-white/50 leading-relaxed font-light">
+              From sound waves to JPEG compression, from MRI scanners to drawing pictures with circles —
+              Fourier's idea is everywhere. Let's understand it visually, step by step.
+            </p>
+            <button
+              onClick={() => navigate('/fourier/app')}
+              className="mt-4 w-full sm:w-auto flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 bg-white text-black font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)] group"
+            >
+              <Play size={20} className="fill-black group-hover:text-blue transition-colors" />
+              <span>Skip to Visualizer App</span>
+              <ChevronRight size={20} className="ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </button>
+          </section>
+        </ScrollReveal>
 
         <Divider />
 
@@ -316,12 +342,13 @@ export default function FourierArticle() {
         </div>
 
         {/* ═══ SECTION 1 — WHAT IS THE FOURIER SERIES? ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Sigma} color="blue" title="What is the Fourier Series?" subtitle="The Big Idea" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              In 1807, the French mathematician <strong className="text-ink">Jean-Baptiste Joseph Fourier</strong> made
+              In 1807, the French mathematician <strong className="text-white">Jean-Baptiste Joseph Fourier</strong> made
               a bold claim: <em>any periodic function — no matter how complex or jagged — can be written as a sum of
               simple sine and cosine waves.</em> At the time, many mathematicians doubted him. But he was right, and
               this idea became one of the most powerful tools in all of mathematics and engineering.
@@ -335,85 +362,91 @@ export default function FourierArticle() {
           </div>
 
           {/* Live sine wave visual */}
-          <div className="w-full h-40 rounded-2xl bg-panel-solid border border-white/5 overflow-hidden relative">
+          <div className="w-full h-40 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden relative">
             <SineWaveCanvas color="#3b82f6" frequency={2} amplitude={0.6} />
             <div className="absolute inset-0 flex items-end justify-center pb-3">
-              <span className="font-mono text-xs text-ink-dim/60 uppercase tracking-widest">A single pure sine wave — the building block</span>
+              <span className="font-mono text-xs text-white/60/60 uppercase tracking-widest">A single pure sine wave — the building block</span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               Put simply, every repeating pattern is secretly a recipe. The Fourier Series gives you the recipe —
               telling you how much of each frequency ingredient you need. Low frequencies give you the broad shape,
               high frequencies add the fine details and sharp edges.
             </p>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 2 — SERIES vs TRANSFORM ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Zap} color="purple" title="Series vs. Transform" subtitle="What's the difference?" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              People often confuse the <strong className="text-ink">Fourier Series</strong> and the <strong className="text-ink">Fourier Transform</strong>.
+              People often confuse the <strong className="text-white">Fourier Series</strong> and the <strong className="text-white">Fourier Transform</strong>.
               They are cousins — deeply related, but not the same thing:
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 rounded-2xl bg-blue/[0.04] border border-blue/10 flex flex-col gap-3">
-              <h3 className="font-bold text-ink text-lg flex items-center gap-2">
+              <h3 className="font-bold text-white text-lg flex items-center gap-2">
                 <Sigma size={18} className="text-blue" /> Fourier Series
               </h3>
-              <p className="text-ink-dim leading-relaxed text-[15px]">
+              <p className="text-white/60 leading-relaxed text-[15px]">
                 Works on <strong>periodic</strong> (repeating) signals. It decomposes them into a
                 <strong> discrete set of frequencies</strong> — the fundamental frequency and its harmonics
                 (integer multiples). The output is a list of amplitudes and phases.
               </p>
-              <p className="text-ink-dim/60 text-sm font-mono mt-2">
+              <p className="text-white/60/60 text-sm font-mono mt-2">
                 f(t) = a₀ + Σ [ aₙcos(nωt) + bₙsin(nωt) ]
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-purple/[0.04] border border-purple/10 flex flex-col gap-3">
-              <h3 className="font-bold text-ink text-lg flex items-center gap-2">
+              <h3 className="font-bold text-white text-lg flex items-center gap-2">
                 <Zap size={18} className="text-purple" /> Fourier Transform
               </h3>
-              <p className="text-ink-dim leading-relaxed text-[15px]">
+              <p className="text-white/60 leading-relaxed text-[15px]">
                 Works on <strong>any signal</strong>, whether repeating or not. Instead of a list
                 of discrete frequencies, it gives you a <strong>continuous spectrum</strong> — a smooth
                 curve showing how much energy exists at every possible frequency.
               </p>
-              <p className="text-ink-dim/60 text-sm font-mono mt-2">
+              <p className="text-white/60/60 text-sm font-mono mt-2">
                 F(ω) = ∫ f(t) · e^(-iωt) dt
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               Think of the Fourier Series as the special case of the Fourier Transform when your signal repeats forever.
-              In practice, computers use the <strong className="text-ink">Discrete Fourier Transform (DFT)</strong> —
+              In practice, computers use the <strong className="text-white">Discrete Fourier Transform (DFT)</strong> —
               a version that works on sampled digital data — and a blazingly fast algorithm called the
-              <strong className="text-ink"> FFT (Fast Fourier Transform)</strong> to compute it efficiently.
+              <strong className="text-white"> FFT (Fast Fourier Transform)</strong> to compute it efficiently.
             </p>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 3 — SEEING IT VISUALLY ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Waves} color="green" title="Seeing It Visually" subtitle="Adding waves together" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               The best way to understand the Fourier Series is to watch it build a shape from scratch.
-              Let's take the classic <strong className="text-ink">square wave</strong> — a signal that jumps abruptly between
+              Let's take the classic <strong className="text-white">square wave</strong> — a signal that jumps abruptly between
               two values. It looks nothing like a smooth sine wave. Yet the Fourier Series says we can build it
               using only sine waves!
             </p>
@@ -425,18 +458,18 @@ export default function FourierArticle() {
           </div>
 
           {/* Square wave approximation visual */}
-          <div className="w-full h-56 rounded-2xl bg-panel-solid border border-white/5 overflow-hidden relative">
+          <div className="w-full h-56 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden relative">
             <SquareWaveCanvas terms={7} />
             <div className="absolute inset-0 flex items-end justify-center pb-3">
-              <span className="font-mono text-xs text-ink-dim/60 uppercase tracking-widest">
+              <span className="font-mono text-xs text-white/60/60 uppercase tracking-widest">
                 7 sine waves approximating a square wave (ghost = ideal)
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              Notice the little wiggles near the sharp edges? That's called the <strong className="text-ink">Gibbs phenomenon</strong> —
+              Notice the little wiggles near the sharp edges? That's called the <strong className="text-white">Gibbs phenomenon</strong> —
               the Fourier Series always overshoots a little at discontinuities, no matter how many terms you add.
               It's a quirky but beautiful property of the math.
             </p>
@@ -445,45 +478,48 @@ export default function FourierArticle() {
               they can all be decomposed into their sine wave ingredients. The Fourier Series is the universal language of periodic signals.
             </p>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 4 — EPICYCLES ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={CircleDashed} color="purple" title="Epicycles: Drawing with Circles" subtitle="From ancient astronomy to modern math" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              The ancient Greeks used a system of <strong className="text-ink">epicycles</strong> — circles riding on circles —
+              The ancient Greeks used a system of <strong className="text-white">epicycles</strong> — circles riding on circles —
               to predict the motion of planets across the sky. Remarkably, this same idea is the geometric heart of the
               Fourier Series!
             </p>
             <p>
-              Each term in a Fourier Series can be visualized as a <strong className="text-ink">rotating vector</strong> (a phasor).
+              Each term in a Fourier Series can be visualized as a <strong className="text-white">rotating vector</strong> (a phasor).
               Its length is the amplitude, and its rotation speed is the frequency. If you chain these rotating vectors
               end-to-end, the tip of the last vector traces out a complex path in 2D space.
             </p>
           </div>
 
           {/* Live epicycle visual */}
-          <div className="w-full h-72 rounded-2xl bg-panel-solid border border-white/5 overflow-hidden relative">
+          <div className="w-full h-72 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden relative">
             <EpicycleCanvas />
             <div className="absolute inset-0 flex items-end justify-center pb-3">
-              <span className="font-mono text-xs text-ink-dim/60 uppercase tracking-widest">
+              <span className="font-mono text-xs text-white/60/60 uppercase tracking-widest">
                 4 rotating circles tracing a path — live epicycles
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               With just a few circles, you get a rough approximation. Add more circles, and the drawing becomes
               astonishingly precise. People have used this technique to draw portraits, spell out text, and recreate
               complex mathematical curves — all using nothing but spinning circles.
             </p>
             <p>
-              This is exactly what our <strong className="text-ink">Fourier Visualizer app</strong> does.
+              This is exactly what our <strong className="text-white">Fourier Visualizer app</strong> does.
               You can add, remove, and configure individual arms (circles) and watch in real-time as the combined
               motion traces out different waveforms. Each arm represents one term in the Fourier Series.
             </p>
@@ -500,17 +536,20 @@ export default function FourierArticle() {
               The starting angle of the rotation. Phase shifts the contribution in time, aligning the waves correctly.
             </InfoCard>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 5 — REAL WORLD USES ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Zap} color="amber" title="Where Is This Used?" subtitle="Everywhere, it turns out" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              Fourier's idea isn't just beautiful mathematics — it is one of the most <strong className="text-ink">practically
+              Fourier's idea isn't just beautiful mathematics — it is one of the most <strong className="text-white">practically
               useful tools</strong> ever discovered. Here's a small sample of where it shows up:
             </p>
           </div>
@@ -541,31 +580,34 @@ export default function FourierArticle() {
               any field that deals with signals uses Fourier analysis as a fundamental tool.
             </InfoCard>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 6 — THE MATH ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Sigma} color="pink" title="A Peek at the Math" subtitle="Don't worry, it's friendlier than it looks" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               The continuous Fourier Series for a periodic function with period T is:
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <p className="font-mono text-xl md:text-2xl text-ink tracking-wide">
+          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
+            <p className="font-mono text-xl md:text-2xl text-white tracking-wide">
               f(t) = a₀ + <span className="text-blue">Σ</span> [ aₙ·cos(nωt) + bₙ·sin(nωt) ]
             </p>
-            <p className="font-mono text-sm text-ink-dim mt-4">where ω = 2π/T is the fundamental angular frequency</p>
+            <p className="font-mono text-sm text-white/60 mt-4">where ω = 2π/T is the fundamental angular frequency</p>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              <strong className="text-ink">a₀</strong> is the average (DC offset) of the signal.
-              The coefficients <strong className="text-ink">aₙ</strong> and <strong className="text-ink">bₙ</strong> tell
+              <strong className="text-white">a₀</strong> is the average (DC offset) of the signal.
+              The coefficients <strong className="text-white">aₙ</strong> and <strong className="text-white">bₙ</strong> tell
               you how much of each cosine and sine harmonic is present. They are computed using integrals
               over one period of the function.
             </p>
@@ -575,29 +617,32 @@ export default function FourierArticle() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <p className="font-mono text-xl md:text-2xl text-ink tracking-wide">
+          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
+            <p className="font-mono text-xl md:text-2xl text-white tracking-wide">
               F(ω) = <span className="text-purple">∫</span> f(t) · e<sup>−iωt</sup> dt
             </p>
-            <p className="font-mono text-sm text-ink-dim mt-4">The beautiful Euler form — e^(iθ) = cos(θ) + i·sin(θ)</p>
+            <p className="font-mono text-sm text-white/60 mt-4">The beautiful Euler form — e^(iθ) = cos(θ) + i·sin(θ)</p>
           </div>
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
-              The <strong className="text-ink">e<sup>−iωt</sup></strong> factor is what connects the math to the epicycles we saw earlier.
+              The <strong className="text-white">e<sup>−iωt</sup></strong> factor is what connects the math to the epicycles we saw earlier.
               Euler's formula tells us that <em>e<sup>iθ</sup> = cos(θ) + i·sin(θ)</em>, which is just a point on a unit circle!
               So multiplying by <em>e<sup>−iωt</sup></em> is the same as spinning a vector — and that's exactly what an epicycle does.
             </p>
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ SECTION 7 — HOW OUR VISUALIZER WORKS ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col gap-8">
           <SectionHead icon={Radio} color="green" title="How Our Visualizer Works" subtitle="From math to pixels" />
 
-          <div className="flex flex-col gap-5 text-ink-dim text-lg leading-relaxed">
+          <div className="flex flex-col gap-5 text-white/60 text-lg leading-relaxed">
             <p>
               The interactive visualizer app I built takes these mathematical ideas and makes them tangible.
               Here's what it does:
@@ -611,34 +656,39 @@ export default function FourierArticle() {
               { step: '03', title: 'Trace the Wave', desc: 'The tip of the final arm is projected onto the time axis, producing a flowing wave in the bottom panel graph.' },
               { step: '04', title: 'Switch Wave Types', desc: 'Toggle between preset wave types (square, sawtooth, triangle) or customize individual harmonics to create any waveform.' },
             ].map(({ step, title, desc }) => (
-              <div key={step} className="flex gap-5 items-start p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-green/20 transition-colors">
+              <div key={step} className="flex gap-5 items-start p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-green/20 transition-colors">
                 <span className="font-mono text-3xl font-black text-green/30">{step}</span>
                 <div className="flex flex-col gap-1">
-                  <h4 className="font-semibold text-ink">{title}</h4>
-                  <p className="text-ink-dim text-[15px] leading-relaxed">{desc}</p>
+                  <h4 className="font-semibold text-white">{title}</h4>
+                  <p className="text-white/60 text-[15px] leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
+        
         </section>
+        </ScrollReveal>
 
         <Divider />
 
         {/* ═══ FOOTER CTA ═══ */}
+        <ScrollReveal>
         <section className="flex flex-col items-center text-center gap-8 py-12">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-ink">Ready to try it yourself?</h2>
-          <p className="text-xl text-ink-dim max-w-xl leading-relaxed">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">Ready to try it yourself?</h2>
+          <p className="text-xl text-white/60 max-w-xl leading-relaxed">
             I built a fully interactive math engine right in the browser. Add epicycles, tweak frequencies,
             switch wave types, and watch the Fourier Series come alive in real-time.
           </p>
           <button
             onClick={() => navigate('/fourier/app')}
-            className="mt-4 flex items-center gap-3 px-6 md:px-10 py-4 md:py-5 bg-gradient-to-r from-blue via-purple to-blue bg-[length:200%_auto] animate-gradientShift text-white font-bold rounded-xl hover:scale-[1.03] active:scale-[0.97] transition-all shadow-[0_0_40px_rgba(168,85,247,0.4)]"
+            className="mt-4 w-full sm:w-auto flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 bg-gradient-to-r from-blue via-purple to-blue bg-[length:200%_auto] animate-gradientShift text-white font-bold rounded-xl hover:scale-[1.03] active:scale-[0.97] transition-all shadow-[0_0_40px_rgba(168,85,247,0.4)] group"
           >
-            <Play size={24} className="fill-white" />
+            <Play size={24} className="fill-white group-hover:scale-110 transition-transform" />
             <span className="text-lg tracking-wide">Enter the Visualizer</span>
           </button>
+        
         </section>
+        </ScrollReveal>
 
       </div>
     </div>
