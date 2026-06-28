@@ -429,47 +429,12 @@ function InfoCard({ icon: Icon, title, children, accent = 'blue' }) {
 /* ═══════════════ MAIN PAGE ═══════════════ */
 export default function FourierArticle() {
   const navigate = useNavigate();
-  const heroRef = useRef(null);
-  const bgDrawRef = useRef(null);
-
-  useEffect(() => {
-    const heroEl = heroRef.current;
-    const bgEl = bgDrawRef.current;
-    if (!heroEl && !bgEl) return;
-
-    const handleScroll = () => {
-      const sy = window.scrollY;
-      const isMobile = window.innerWidth < 768;
-      const fadeDistHero = isMobile ? 250 : 400;
-      const fadeDistBg = isMobile ? 350 : 550;
-
-      const heroOpacity = Math.max(0, 1 - sy / fadeDistHero);
-      const bgOpacity = Math.max(0, 0.8 - sy / fadeDistBg);
-
-      if (heroEl) {
-        heroEl.style.opacity = heroOpacity;
-        heroEl.style.transform = `translateY(${-sy * 0.15}px)`;
-      }
-      if (bgEl) {
-        bgEl.style.opacity = bgOpacity;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Run once on load to sync initial state
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#0f1311] text-white font-sans selection:bg-white/20 overflow-x-hidden relative">
       <Background />
 
-      <div 
-        ref={bgDrawRef}
-        className="absolute top-0 left-0 w-full h-screen pointer-events-none z-0 overflow-hidden opacity-80 mix-blend-screen transition-opacity duration-75"
-      >
+      <div className="absolute top-0 left-0 w-full h-screen pointer-events-none z-0 overflow-hidden opacity-80 mix-blend-screen">
         <FourierDraw />
       </div>
 
@@ -490,10 +455,7 @@ export default function FourierArticle() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-20 pb-16 md:pb-32 flex flex-col gap-12 md:gap-28">
 
         {/* ═══ HERO ═══ */}
-        <section 
-          ref={heroRef}
-          className="flex flex-col gap-6 text-center justify-center items-center h-screen -mt-8 md:-mt-20 pointer-events-none px-2 transition-transform duration-75 ease-out"
-        >
+        <section className="flex flex-col gap-6 text-center justify-center items-center h-screen -mt-8 md:-mt-20 pointer-events-none px-2">
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] animate-fadeSlideIn break-words">
             <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 block pb-2">
               Fourier Series
@@ -874,7 +836,6 @@ export default function FourierArticle() {
 
           </section>
         </ScrollReveal>
-
       </div>
     </div>
   );

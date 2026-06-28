@@ -79,13 +79,33 @@ export default function JosephFourierCanvas({ className = '' }) {
         
         // Track whether canvas is visible in viewport
         let isIntersecting = true;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                isIntersecting = entry.isIntersecting;
-            },
-            { threshold: 0.05 }
-        );
-        observer.observe(canvas);
+        let observer;
+
+        const checkScrollIntersection = () => {
+            if (!isIntersecting) {
+                const rect = canvas.getBoundingClientRect();
+                const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+                const visible = !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+                if (visible) {
+                    isIntersecting = true;
+                }
+            }
+        };
+
+        if (window.IntersectionObserver) {
+            observer = new IntersectionObserver(
+                ([entry]) => {
+                    isIntersecting = entry.isIntersecting;
+                },
+                { threshold: 0.0 }
+            );
+            observer.observe(canvas);
+        } else {
+            // Fallback for environments where IntersectionObserver is missing or fails
+            window.addEventListener('scroll', checkScrollIntersection, { passive: true });
+            window.addEventListener('resize', checkScrollIntersection, { passive: true });
+            checkScrollIntersection();
+        }
         
         const NUM_SAMPLES = 2048;
 
@@ -325,7 +345,9 @@ export default function JosephFourierCanvas({ className = '' }) {
         };
 
         return () => {
-            observer.disconnect();
+            if (observer) observer.disconnect();
+            window.removeEventListener('scroll', checkScrollIntersection);
+            window.removeEventListener('resize', checkScrollIntersection);
             cancelAnimationFrame(animationId);
         };
     }, []);

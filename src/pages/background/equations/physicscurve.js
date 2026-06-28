@@ -76,20 +76,46 @@ export const physicsDiagrams = {
     const omega = Math.sqrt(g / L);
     const theta = 0.35 * Math.sin(globalTime * omega * 8.0); // Scaled for visible animation
     
-    const bx = cx + L * Math.sin(theta);
-    const by = cy + L * Math.cos(theta);
+    // Pre-calculate trigonometric functions to save calculations in frame loop
+    const sinTheta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
+    
+    const bx = cx + L * sinTheta;
+    const by = cy + L * cosTheta;
 
     if (prog > 0.1) {
+      // Draw ceiling attachment mount
       drawChalkLine(ctx, [{ x: cx - 35, y: cy }, { x: cx + 35, y: cy }], opacity * 0.5, 1.5);
       for (let sx = cx - 30; sx <= cx + 30; sx += 10) {
         drawChalkLine(ctx, [{ x: sx, y: cy }, { x: sx + 4, y: cy - 4 }], opacity * 0.3, 1);
       }
     }
     if (prog > 0.3) {
+      // Draw string
       drawChalkLine(ctx, [{ x: cx, y: cy }, { x: bx, y: by }], opacity * 0.6, 1.2, CYAN);
+      
+      // Draw angle theta (θ) arc at the top pivot
+      if (Math.abs(theta) > 0.02) {
+        ctx.save();
+        ctx.beginPath();
+        const startAngle = Math.PI / 2;
+        const endAngle = Math.PI / 2 + theta;
+        ctx.arc(cx, cy, 25, startAngle, endAngle, theta < 0);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Offset label slightly from vertical axis
+        const lx = cx + 32 * Math.sin(theta / 2);
+        const ly = cy + 32 * Math.cos(theta / 2);
+        drawChalkText(ctx, 'θ', lx - 3, ly + 5, opacity * 0.5, LABEL_SIZE - 2);
+        ctx.restore();
+      }
     }
     if (prog > 0.5) {
-      drawCircle(ctx, bx, by, 7, opacity, PURPLE);
+      // Draw solid bob with premium chalk outline
+      drawCircle(ctx, bx, by, 7, opacity, PURPLE, true);
+      drawCircle(ctx, bx, by, 7, opacity * 0.8, 'rgba(255, 255, 255, 0.7)', false);
       
       // Equilibrium dashed line
       ctx.save();
@@ -103,12 +129,16 @@ export const physicsDiagrams = {
     }
     if (prog > 0.7) {
       // Tension force
-      drawChalkArrow(ctx, bx, by, bx - Math.sin(theta) * 22, by - Math.cos(theta) * 22, opacity, 1.5, CYAN);
-      drawChalkText(ctx, 'T', bx - Math.sin(theta) * 22 - 10, by - Math.cos(theta) * 22 - 5, opacity, LABEL_SIZE, CYAN);
+      const tx = bx - sinTheta * 22;
+      const ty = by - cosTheta * 22;
+      drawChalkArrow(ctx, bx, by, tx, ty, opacity, 1.5, CYAN);
+      drawChalkText(ctx, 'T', tx - 10, ty - 5, opacity, LABEL_SIZE, CYAN);
 
       // Gravity force
-      drawChalkArrow(ctx, bx, by, bx, by + 25, opacity, 1.5, PURPLE);
-      drawChalkText(ctx, 'mg', bx + 4, by + 22, opacity, LABEL_SIZE, PURPLE);
+      const gx = bx;
+      const gy = by + 25;
+      drawChalkArrow(ctx, bx, by, gx, gy, opacity, 1.5, PURPLE);
+      drawChalkText(ctx, 'mg', gx + 4, gy + 22, opacity, LABEL_SIZE, PURPLE);
     }
   },
   // ==========================================
